@@ -27,14 +27,14 @@ public class MainViewController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         mainPane.getTabs().clear();
 
-        if (role.equals("operator")) {
-            addTab("Новая заявка",      "/view/operator_tabs/AddRequestTab.fxml", null);
-            addTab("Готово к выдаче",   "/view/operator_tabs/FinishedRequestsTab.fxml", null);
+        if (role.equals("user")) {
+            addTab("Новая заявка", "/view/user_tabs/AddRequestTab.fxml", null);
 
-        } else if (role.equals("manager")) {
+        } else if (role.equals("admin")) {
             addTab("Новые заявки",  "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("manager_new"));
-            addTab("Все заявки",    "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("manager"));
+            addTab("Принятые заявки",    "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("manager"));
             addTab("Пользователи",  "/view/UniversalTableTab.fxml", new UniversalTableTabController("members"));
+            addTab("Оборудование",  "/view/UniversalTableTab.fxml", new UniversalTableTabController("orders"));
             addTab("Статистика",    "/view/manager_tabs/StatisticsTab.fxml", null);
 
         } else if (role.equals("repairer")) {

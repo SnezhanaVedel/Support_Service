@@ -61,7 +61,7 @@ public class LoginController implements Initializable {
             loader.setController(mainViewController);
 
             Stage stage = new Stage();
-            stage.setTitle("Demo Exam App");
+            stage.setTitle("");
             stage.setScene(new Scene(loader.load()));
             stage.show();
 
