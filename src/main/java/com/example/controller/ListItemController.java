@@ -34,16 +34,16 @@ public class ListItemController {
 
     public void updateFromDatabase(int requestNumber) {
         try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
-            String query = "SELECT r.problem_desc, rr.client_name " +
+            String query = "SELECT r.problem_desc, m.name " +
                     "FROM requests r " +
-                    "JOIN request_regs rr ON r.id = rr.request_id " +
+                    "JOIN members m ON r.member_id = m.id " +
                     "WHERE r.id = ?";
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setInt(1, requestNumber);
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     if (resultSet.next()) {
                         String problemType = resultSet.getString("problem_desc");
-                        String clientName = resultSet.getString("client_name");
+                        String clientName = resultSet.getString("name");
 
                         setDescription(problemType); // Устанавливаем problemType вместо description
                         setClientName(clientName);

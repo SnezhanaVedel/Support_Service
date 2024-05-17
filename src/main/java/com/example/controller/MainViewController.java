@@ -28,20 +28,24 @@ public class MainViewController implements Initializable {
         mainPane.getTabs().clear();
 
         if (role.equals("user")) {
-            addTab("Новая заявка", "/view/user_tabs/AddRequestTab.fxml", null);
+            addTab("Создать заявку", "/view/user_tabs/AddRequestTab.fxml", null);
+            addTab("Отправленные заявки", "/view/user_tabs/SentRequestsTab.fxml", null);
 
         } else if (role.equals("admin")) {
             addTab("Новые заявки",  "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("manager_new"));
-            addTab("Принятые заявки",    "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("manager"));
+            addTab("Принятые заявки",    "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("admin"));
             addTab("Пользователи",  "/view/UniversalTableTab.fxml", new UniversalTableTabController("members"));
-            addTab("Оборудование",  "/view/UniversalTableTab.fxml", new UniversalTableTabController("orders"));
-            addTab("Статистика",    "/view/manager_tabs/StatisticsTab.fxml", null);
+            addTab("Оборудование",  "/view/UniversalTableTab.fxml", new UniversalTableTabController("equipment"));
+//            addTab("Статистика",    "/view/manager_tabs/StatisticsTab.fxml", null);
 
-        } else if (role.equals("repairer")) {
+        }
+
+
+        /*else if (role.equals("repairer")) {
             addTab("Ответственные заявки",  "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("resp_repairer"));
             addTab("Обычные заявки",        "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("addit_repairer"));
             addTab("Заказ запчастей",       "/view/UniversalTableTab.fxml", new UniversalTableTabController("orders"));
-        }
+        }*/
     }
 
 

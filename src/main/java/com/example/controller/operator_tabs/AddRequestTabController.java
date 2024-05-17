@@ -13,6 +13,8 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
 
+import static com.example.controller.MainViewController.userID;
+
 public class AddRequestTabController implements Initializable {
     public TextField clientNameField;
     public TextField clientPhoneField;
@@ -29,10 +31,7 @@ public class AddRequestTabController implements Initializable {
     }
 
     private void clearFields() {
-        clientNameField.clear();
-        clientPhoneField.clear();
         serialNumberField.clear();
-        equipTypeField.clear();
         descTextArea.clear();
     }
 
@@ -43,18 +42,9 @@ public class AddRequestTabController implements Initializable {
     @FXML
     public void onActionAdd() {
         String insertRequestsSql = String.format(
-                "INSERT INTO requests (equip_num, equip_type, problem_desc, status) VALUES ('%s', '%s', '%s', '%s')",
-                serialNumberField.getText(), equipTypeField.getText(), descTextArea.getText(), "Новая");
+                "INSERT INTO requests (serial_num, problem_desc, request_comments, status, date_start, member_id) VALUES ('%s', '%s', '%s', '%s', '%s', %d)",
+                serialNumberField.getText(), descTextArea.getText(), "", "Новая", Date.valueOf(LocalDate.now()), userID);
         database.simpleQuery(insertRequestsSql);
-
-        // Получаем сгенерированный ключ (id) новой записи
-        int generatedId = Integer.parseInt(database.executeQueryAndGetColumnValues("SELECT LASTVAL()").get(0));
-
-        // Вставка данных в таблицу request_regs
-        String insertRequestRegsSql = String.format(
-                "INSERT INTO request_regs (request_id, client_name, client_phone, date_start) VALUES (%d, '%s', '%s', '%s')",
-                generatedId, clientNameField.getText(), clientPhoneField.getText(), Date.valueOf(LocalDate.now()));
-        database.simpleQuery(insertRequestRegsSql);
 
         MyAlert.showInfoAlert("Запись добавлена успешно.");
     }

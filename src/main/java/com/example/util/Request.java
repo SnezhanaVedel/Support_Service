@@ -4,18 +4,19 @@ import java.sql.*;
 
 public class Request {
     int id;
+    String serial_num;
     String equip_type;
+    String equip_name;
+    String equip_details;
+    String equip_location;
+    String equip_condition;
     String problem_desc;
     String client_name;
     String client_phone;
-    String equip_num;
+    String client_email;
     String status;
-    String priority;
     String date_start;
-    String date_finish_plan;
     String request_comments;
-    String responsible_repairer_name;
-    String additional_repairer_name;
 
     Database database;
 
@@ -26,67 +27,34 @@ public class Request {
         loadInfoFromDB();
     }
 
-    public void updateRequestInDB(String equip_num,
-                                  String equip_type,
+    public void updateRequestInDB(String equip_details,
+                                  String equip_location,
+                                  String equip_condition,
                                   String problem_desc,
                                   String request_comments,
-                                  String status,
-                                  String priority,
-                                  String date_finish_plan,
-                                  String responsible_repairer_name,
-                                  String additional_repairer_name) {
+                                  String status) {
 
-        this.equip_num = equip_num;
-        this.equip_type = equip_type;
+        this.equip_details = equip_details;
+        this.equip_location = equip_location;
+        this.equip_condition = equip_condition;
         this.problem_desc = problem_desc;
         this.request_comments = request_comments;
         this.status = status;
-        this.priority = priority;
-        this.date_finish_plan = date_finish_plan;
-        this.responsible_repairer_name = responsible_repairer_name;
-        this.additional_repairer_name = additional_repairer_name;
 
         database = Database.getInstance();
 
-        // Обновляем запись в таблице requests
+        // Обновление таблицы equipment
+        String updateEquipmentQuery = String.format("UPDATE equipment " +
+                "SET details = '%s', location = '%s', condition = '%s' " +
+                "WHERE serial_num = (SELECT serial_num FROM requests WHERE id = %d)", equip_details, equip_location, equip_condition, id);
+        database.simpleQuery(updateEquipmentQuery);
+
+// Обновление таблицы requests
         String updateRequestsQuery = String.format("UPDATE requests " +
-                "SET equip_num = '%s', equip_type = '%s', problem_desc = '%s', request_comments = '%s', status = '%s' " +
-                "WHERE id = %d", equip_num, equip_type, problem_desc, request_comments, status, id);
+                "SET problem_desc = '%s', request_comments = '%s', status = '%s' " +
+                "WHERE id = %d", problem_desc, request_comments, status, id);
         database.simpleQuery(updateRequestsQuery);
 
-
-        // Обновляем запись в таблице request_processes
-        String insertOrUpdateProcessQuery = String.format(
-                "INSERT INTO request_processes (request_id, priority, date_finish_plan) " +
-                        "VALUES (%d, '%s', '%s') " +
-                        "ON CONFLICT (request_id) DO UPDATE " +
-                        "SET priority = '%s', date_finish_plan = '%s'",
-                id, priority, date_finish_plan, priority, date_finish_plan);
-
-        database.simpleQuery(insertOrUpdateProcessQuery);
-
-
-        // Добавляем или обновляем запись в таблице assignments для ответственного исполнителя
-        String updateRespAssignQuery = String.format(
-                "INSERT INTO assignments (id_request, member_id, is_responsible) " +
-                        "VALUES (%d, (SELECT id FROM members WHERE name = '%s'), %s) " +
-                        "ON CONFLICT (id_request, is_responsible) DO UPDATE " +
-                        "SET member_id = EXCLUDED.member_id", id, responsible_repairer_name, true);
-        database.simpleQuery(updateRespAssignQuery);
-
-
-        if (additional_repairer_name.equals("Нет")) {
-            database.simpleQuery("DELETE FROM assignments WHERE is_responsible = false AND id_request = " + id);
-
-        } else {
-            // Обновляем запись в таблице assignments для дополнительного исполнителя
-            String updateAdditAssignQuery = String.format(
-                    "INSERT INTO assignments (id_request, member_id, is_responsible) " +
-                            "VALUES (%d, (SELECT id FROM members WHERE name = '%s'), %s) " +
-                            "ON CONFLICT (id_request, is_responsible) DO UPDATE " +
-                            "SET member_id = EXCLUDED.member_id", id, additional_repairer_name, false);
-            database.simpleQuery(updateAdditAssignQuery);
-        }
 
         MyAlert.showInfoAlert("Информация по заявке обновлена успешно.");
     }
@@ -94,16 +62,12 @@ public class Request {
     public void loadInfoFromDB() {
         database = Database.getInstance();
         try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
-            String query = "SELECT r.id, r.equip_type, r.problem_desc, rr.client_name, rr.client_phone, " +
-                    "r.equip_num, r.status, rp.priority, rr.date_start, rp.date_finish_plan, r.request_comments, " +
-                    "m1.name AS responsible_repairer_name, m2.name AS additional_repairer_name " +
+            String query = "SELECT r.id, r.serial_num, r.problem_desc, r.request_comments, r.status, r.date_start, " +
+                    "m.name, m.phone, m.e_mail, " +
+                    "e.equip_name, e.equip_type, e.condition, e.details, e.location " +
                     "FROM requests r " +
-                    "JOIN request_regs rr ON r.id = rr.request_id " +
-                    "LEFT JOIN request_processes rp ON r.id = rp.request_id " +
-                    "LEFT JOIN assignments a1 ON r.id = a1.id_request AND a1.is_responsible = true " +
-                    "LEFT JOIN assignments a2 ON r.id = a2.id_request AND a2.is_responsible = false " +
-                    "LEFT JOIN members m1 ON a1.member_id = m1.id " +
-                    "LEFT JOIN members m2 ON a2.member_id = m2.id " +
+                    "JOIN members m ON r.member_id = m.id " +
+                    "JOIN equipment e ON r.serial_num = e.serial_num " +
                     "WHERE r.id = ?";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -112,22 +76,22 @@ public class Request {
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     if (resultSet.next()) {
                         id = resultSet.getInt("id");
-                        equip_type = resultSet.getString("equip_type");
+                        serial_num = resultSet.getString("serial_num");
                         problem_desc = resultSet.getString("problem_desc");
-                        client_name = resultSet.getString("client_name");
-                        client_phone = resultSet.getString("client_phone");
-                        equip_num = resultSet.getString("equip_num");
                         request_comments = resultSet.getString("request_comments");
                         status = resultSet.getString("status");
-                        priority = resultSet.getString("priority");
+                        client_name = resultSet.getString("name");
+                        client_phone = resultSet.getString("phone");
+                        client_email = resultSet.getString("e_mail");
+                        equip_name = resultSet.getString("equip_name");
+                        equip_type = resultSet.getString("equip_type");
+                        equip_condition = resultSet.getString("condition");
+                        equip_details = resultSet.getString("details");
+                        equip_location = resultSet.getString("location");
 
                         // Используется getString вместо getDate, чтобы избежать NullPointerException в случае,
                         // когда эти данные у заявки ещё отсутствуют
                         date_start = resultSet.getString("date_start");
-                        date_finish_plan = resultSet.getString("date_finish_plan");
-
-                        responsible_repairer_name = resultSet.getString("responsible_repairer_name");
-                        additional_repairer_name = resultSet.getString("additional_repairer_name");
                     }
                 }
             }
@@ -138,16 +102,16 @@ public class Request {
     }
 
 
-    public boolean deleteRequestInDB() {
-        String idStr = String.valueOf(id);
-        database.deleteQuery("assignments", "id_request", idStr);
-        database.deleteQuery("request_processes", "request_id", idStr);
-        database.deleteQuery("request_regs", "request_id", idStr);
-        boolean deletedSuccessfully = database.deleteQuery("requests", "id", idStr);
-
-        // TODO: мб проверку условий доделать
-        return deletedSuccessfully;
-    }
+//    public boolean deleteRequestInDB() {
+//        String idStr = String.valueOf(id);
+//        database.deleteQuery("assignments", "id_request", idStr);
+//        database.deleteQuery("request_processes", "request_id", idStr);
+//        database.deleteQuery("request_regs", "request_id", idStr);
+//        boolean deletedSuccessfully = database.deleteQuery("requests", "id", idStr);
+//
+//        // TODO: мб проверку условий доделать
+//        return deletedSuccessfully;
+//    }
 
 
     public int getId() {
@@ -170,35 +134,43 @@ public class Request {
         return client_phone;
     }
 
-    public String getEquip_num() {
-        return equip_num;
+    public String getSerial_num() {
+        return serial_num;
     }
 
     public String getStatus() {
         return status;
     }
 
-    public String getPriority() {
-        return priority;
-    }
-
     public String getDate_start() {
         return date_start;
-    }
-
-    public String getDate_finish_plan() {
-        return date_finish_plan;
     }
 
     public String getRequest_comments() {
         return request_comments;
     }
 
-    public String getResponsible_repairer_name() {
-        return responsible_repairer_name;
+    public String getEquip_name() {
+        return equip_name;
     }
 
-    public String getAdditional_repairer_name() {
-        return additional_repairer_name;
+    public String getEquip_details() {
+        return equip_details;
+    }
+
+    public String getEquip_location() {
+        return equip_location;
+    }
+
+    public String getEquip_condition() {
+        return equip_condition;
+    }
+
+    public String getClient_email() {
+        return client_email;
+    }
+
+    public Database getDatabase() {
+        return database;
     }
 }

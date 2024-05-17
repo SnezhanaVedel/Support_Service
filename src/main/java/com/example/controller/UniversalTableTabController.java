@@ -48,6 +48,8 @@ public class UniversalTableTabController implements Initializable {
                 addNewBtn.setText("Добавить сотрудника");
             } else if (selectedTable.equals("orders")) {
                 addNewBtn.setText("Добавить заказ");
+            } else if (selectedTable.equals("equipment")) {
+                addNewBtn.setText("Добавить оборудование");
             }
         }
     }
@@ -58,7 +60,11 @@ public class UniversalTableTabController implements Initializable {
     }
 
     private void fillingTable() {
-        ResultSet resultSet = database.getTable(selectedTable, "id");
+        String orderBy = "id";
+        if (selectedTable.equals("equipment")) {
+            orderBy = "serial_num";
+        }
+        ResultSet resultSet = database.getTable(selectedTable, orderBy);
         try {
             if (resultSet != null) {
                 ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
@@ -128,7 +134,9 @@ public class UniversalTableTabController implements Initializable {
 
     public void onActionAdd() {
         ArrayList<String> attrList = database.getAllTableColumnNames(selectedTable);
-        attrList.remove(0);
+        if (!selectedTable.equals("equipment")) {
+            attrList.remove(0);
+        }
         new UniversalAddDialog(selectedTable, attrList);
         updateTable();
     }

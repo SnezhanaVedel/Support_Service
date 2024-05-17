@@ -34,40 +34,13 @@
                           </columnConstraints>
                           <rowConstraints>
                               <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                           <children>
-                              <Label alignment="TOP_LEFT" text="ФИО клиента">
+                              <Label text="Серийный номер">
                            <font>
                               <Font name="Arial" size="16.0" />
                            </font></Label>
-                              <Label text="Телефон клиента" GridPane.rowIndex="1">
-                           <font>
-                              <Font name="Arial" size="16.0" />
-                           </font></Label>
-                              <Label text="Серийный номер" GridPane.rowIndex="2">
-                           <font>
-                              <Font name="Arial" size="16.0" />
-                           </font></Label>
-                              <Label text="Тип оборудования" GridPane.rowIndex="3">
-                           <font>
-                              <Font name="Arial" size="16.0" />
-                           </font></Label>
-                              <TextField fx:id="clientNameField" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1">
-                           <font>
-                              <Font name="Arial" size="14.0" />
-                           </font></TextField>
-                              <TextField fx:id="clientPhoneField" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                           <font>
-                              <Font name="Arial" size="14.0" />
-                           </font></TextField>
-                              <TextField fx:id="serialNumberField" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                           <font>
-                              <Font name="Arial" size="14.0" />
-                           </font></TextField>
-                              <TextField fx:id="equipTypeField" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                              <TextField fx:id="serialNumberField" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1">
                            <font>
                               <Font name="Arial" size="14.0" />
                            </font></TextField>

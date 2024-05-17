@@ -24,22 +24,22 @@ public class UniversalRequestsTabController implements Initializable {
     @FXML
     private ListView<String> repairRequestListView;
     public Label requestNumberLabel;
+    public TextField equipSerialField;
     public TextField equipTypeField;
+    public TextField equipNameField;
+    public TextField equipConditionField;
+    public TextArea equipDetailsArea;
+    public TextField equipLocationField;
     public TextArea descriptionTextArea;
     public Label clientNameLabel;
     public Label clientPhoneLabel;
-    public TextField equipSerialField;
+    public Label clientEmailLabel;
     public TextArea commentsTextArea;
-    public ScrollPane moreInfoScrollPane;
     public BorderPane moreInfoPane;
     public VBox infoVBox;
     public VBox stateVBox;
     public ChoiceBox<String> stateChoice;
-    public ChoiceBox<String> responsibleRepairerChoice;
-    public ChoiceBox<String> additionalRepairerChoice;
-    public ChoiceBox<String> priorityChoice;
     public TextField registerDateTF;
-    public TextField finishDateTF;
 
     public Button refreshListBtn;
 
@@ -68,14 +68,7 @@ public class UniversalRequestsTabController implements Initializable {
         setUnavailableFields();
         loadRepairRequests();
 
-        priorityChoice.getItems().addAll("Срочный", "Высокий", "Нормальный", "Низкий");
         stateChoice.getItems().addAll("В работе", "Выполнено", "В ожидании", "Закрыта");
-
-        ArrayList<String> repairersList = database.stringListQuery("name", "members", "role = 'repairer'", "name");
-        responsibleRepairerChoice.getItems().addAll(repairersList);
-        additionalRepairerChoice.getItems().add("Нет");
-        additionalRepairerChoice.getItems().addAll(repairersList);
-        additionalRepairerChoice.setValue("Нет");
 
         repairRequestListView.setOnMouseClicked(event -> {
             int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
@@ -89,15 +82,7 @@ public class UniversalRequestsTabController implements Initializable {
     }
 
     private void setUnavailableFields() {
-        if (role.equals("resp_repairer")) {
-            responsibleRepairerChoice.setDisable(true);
-        } else if (role.equals("addit_repairer")) {
-            stateChoice.setDisable(true);
-            priorityChoice.setDisable(true);
-            responsibleRepairerChoice.setDisable(true);
-            additionalRepairerChoice.setDisable(true);
-            finishDateTF.setEditable(false);
-        } else if (role.equals("manager_new")) {
+        if (role.equals("manager_new")) {
             infoVBox.getChildren().remove(stateVBox);
         }
     }
@@ -200,7 +185,7 @@ public class UniversalRequestsTabController implements Initializable {
 
 
     private String getQueryForRole() {
-        if (role.equals("manager")) {
+        if (role.equals("admin")) {
             return "SELECT id FROM requests WHERE status != 'Новая' ORDER BY id";
 
         } else if (role.equals("manager_new")) {
@@ -251,15 +236,12 @@ public class UniversalRequestsTabController implements Initializable {
         }
 
         requestMap.get(currentRequestNumber).updateRequestInDB(
-                equipSerialField.getText(),
-                equipTypeField.getText(),
+                equipDetailsArea.getText(),
+                equipLocationField.getText(),
+                equipConditionField.getText(),
                 descriptionTextArea.getText(),
                 commentsTextArea.getText(),
-                stateValue,
-                priorityChoice.getValue(),
-                finishDateTF.getText(),
-                responsibleRepairerChoice.getValue(),
-                additionalRepairerChoice.getValue());
+                stateValue);
 
         if (role.equals("manager_new")) {
             moreInfoPane.setVisible(false);
@@ -302,32 +284,28 @@ public class UniversalRequestsTabController implements Initializable {
         Request request = requestMap.get(requestId);
 
         requestNumberLabel.setText("Заявка №" + requestId);
+        equipSerialField.setText(request.getSerial_num());
         equipTypeField.setText(request.getEquip_type());
+        equipNameField.setText(request.getEquip_name());
+        equipConditionField.setText(request.getEquip_condition());
+        equipDetailsArea.setText(request.getEquip_details());
+        equipLocationField.setText(request.getEquip_location());
         descriptionTextArea.setText(request.getProblem_desc());
         clientNameLabel.setText("ФИО: " + request.getClient_name());
         clientPhoneLabel.setText("Телефон: " + request.getClient_phone());
-        equipSerialField.setText(request.getEquip_num());
+        clientEmailLabel.setText("Телефон: " + request.getClient_email());
         commentsTextArea.setText(request.getRequest_comments());
         registerDateTF.setText(request.getDate_start());
 
-        if (role.equals("manager_new")) {
-            finishDateTF.setText("");
-            priorityChoice.setValue(null);
-            responsibleRepairerChoice.setValue(null);
-            additionalRepairerChoice.setValue("Нет");
-        } else {
+        if (!role.equals("manager_new")) {
             stateChoice.setValue(request.getStatus());
-            finishDateTF.setText(request.getDate_finish_plan());
-            priorityChoice.setValue(request.getPriority());
-            responsibleRepairerChoice.setValue(request.getResponsible_repairer_name());
-            additionalRepairerChoice.setValue(request.getAdditional_repairer_name());
         }
 
         // Отображение кнопки для проверки отчета в зависимости от состояния
         String currentState = request.getStatus();
         if (currentState.equals("Выполнено") || currentState.equals("Закрыта")) {
 
-            if (role.equals("resp_repairer")) {
+            if (role.equals("admin")) {
                 ArrayList<String> reportValues = database.executeQueryAndGetColumnValues(
                         "SELECT * FROM reports WHERE request_id = " + currentRequestNumber);
 
