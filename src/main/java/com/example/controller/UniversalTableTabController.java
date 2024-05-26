@@ -45,11 +45,11 @@ public class UniversalTableTabController implements Initializable {
         if (!selectedTable.isEmpty()) {
             updateTable();
             if (selectedTable.equals("members")) {
-                addNewBtn.setText("Добавить сотрудника");
-            } else if (selectedTable.equals("orders")) {
-                addNewBtn.setText("Добавить заказ");
+                addNewBtn.setText("Добавить пользователя");
             } else if (selectedTable.equals("equipment")) {
                 addNewBtn.setText("Добавить оборудование");
+            } else if (selectedTable.equals("orders")) {
+                addNewBtn.setText("Добавить заказ");
             }
         }
     }
@@ -60,11 +60,11 @@ public class UniversalTableTabController implements Initializable {
     }
 
     private void fillingTable() {
-        String orderBy = "id";
-        if (selectedTable.equals("equipment")) {
-            orderBy = "serial_num";
+        String ORDER_BY = "id";
+        if (selectedTable.equals("equipment")){
+            ORDER_BY = "serial_num";
         }
-        ResultSet resultSet = database.getTable(selectedTable, orderBy);
+        ResultSet resultSet = database.getTable(selectedTable, ORDER_BY);
         try {
             if (resultSet != null) {
                 ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
@@ -126,7 +126,11 @@ public class UniversalTableTabController implements Initializable {
             String columnSearch = ((List) tableView.getItems().get(selectedIndex)).get(0).toString();
             String columnSearchName = ((TableColumn) tableView.getColumns().get(0)).getText();
             tableView.getItems().remove(selectedIndex);
-            database.deleteQuery(selectedTable, columnSearchName, columnSearch);
+            if (selectedTable.equals("equipment")){
+                database.deleteQuery(selectedTable, columnSearchName, "'" + columnSearch + "'");
+            } else {
+                database.deleteQuery(selectedTable, columnSearchName, columnSearch);
+            }
             updateTable();
             MyAlert.showInfoAlert("Запись успешно удалена");
         }
@@ -134,8 +138,8 @@ public class UniversalTableTabController implements Initializable {
 
     public void onActionAdd() {
         ArrayList<String> attrList = database.getAllTableColumnNames(selectedTable);
-        if (!selectedTable.equals("equipment")) {
-            attrList.remove(0);
+        if (!selectedTable.equals("equipment")){
+        attrList.remove(0);
         }
         new UniversalAddDialog(selectedTable, attrList);
         updateTable();

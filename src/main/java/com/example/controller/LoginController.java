@@ -19,7 +19,6 @@ import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
     public Button btnLogin;
-
     @FXML
     private TextField txtUsername;
     @FXML
@@ -61,7 +60,7 @@ public class LoginController implements Initializable {
             loader.setController(mainViewController);
 
             Stage stage = new Stage();
-            stage.setTitle("Служба поддержки");
+            stage.setTitle("");
             stage.setScene(new Scene(loader.load()));
             stage.show();
 

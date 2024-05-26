@@ -1,8 +1,8 @@
 package com.example.controller;
 
-import com.example.util.Request;
 import com.example.util.Database;
 import com.example.util.MyAlert;
+import com.example.util.Request;
 import com.example.util.UniversalAddDialog;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,35 +20,56 @@ import java.util.ResourceBundle;
 
 public class UniversalRequestsTabController implements Initializable {
     public TextField idFilterTF;
-
     @FXML
     private ListView<String> repairRequestListView;
     public Label requestNumberLabel;
-    public TextField equipSerialField;
     public TextField equipTypeField;
-    public TextField equipNameField;
-    public TextField equipConditionField;
-    public TextArea equipDetailsArea;
-    public TextField equipLocationField;
     public TextArea descriptionTextArea;
     public Label clientNameLabel;
     public Label clientPhoneLabel;
-    public Label clientEmailLabel;
+    public TextField equipSerialField;
     public TextArea commentsTextArea;
+    public ScrollPane moreInfoScrollPane;
     public BorderPane moreInfoPane;
     public VBox infoVBox;
     public VBox stateVBox;
     public ChoiceBox<String> stateChoice;
+    public ChoiceBox<String> priorityChoice;
     public TextField registerDateTF;
-
+    public TextField finishDateTF;
     public Button refreshListBtn;
-
     public Button createOrCheckReportBtn;
+
+
+
+    @FXML
+    private TextField serialNumField;
+    @FXML
+    private TextField equipNameField;
+    @FXML
+    private ChoiceBox<String> conditionChoiceBox;
+    @FXML
+    private TextArea detalsTextArea;
+    @FXML
+    private TextField locationField;
+    @FXML
+    private TextArea problemDescTextArea;
+    @FXML
+    private ChoiceBox<String> statusChoice;
+    @FXML
+    private TextField dateStartField;
+    @FXML
+    private TextField clientNameField;
+    @FXML
+    private TextField clientPhoneField;
+    @FXML
+    private TextField emailField;
+
+
 
     private Database database;
     private int currentRequestNumber = -1;
     private String role;
-
 
     private LinkedHashMap<Integer, Request> requestMap;
     private boolean filterApplied = false;
@@ -65,10 +86,12 @@ public class UniversalRequestsTabController implements Initializable {
         moreInfoPane.setVisible(false);
         createOrCheckReportBtn.setVisible(false);
 
-        setUnavailableFields();
         loadRepairRequests();
+        //TODO: убрать статус ЗАКРЫТА в остальных частях кода
 
-        stateChoice.getItems().addAll("В работе", "Выполнено", "В ожидании", "Закрыта");
+        stateChoice.getItems().addAll("В работе", "Выполнено", "В ожидании");
+        //TODO: перечень состояний возможно поменять
+        conditionChoiceBox.getItems().addAll("Исправно","Не исправно","Требуются запчасти");
 
         repairRequestListView.setOnMouseClicked(event -> {
             int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
@@ -79,12 +102,6 @@ public class UniversalRequestsTabController implements Initializable {
                 showMoreInfo(currentRequestNumber);
             }
         });
-    }
-
-    private void setUnavailableFields() {
-        if (role.equals("manager_new")) {
-            infoVBox.getChildren().remove(stateVBox);
-        }
     }
 
     @FXML
@@ -109,31 +126,112 @@ public class UniversalRequestsTabController implements Initializable {
         }
     }
 
+    //TODO: фильтры
 
-//TODO: метод для item
-
-//    public void loadRepairRequests() {
+//
+//     @FXML
+//    public void applyFilters(ActionEvent event) {
 //        repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
-//        requestMap.clear();
 //
-//        String query = getQueryForRole();
-//        if (query != null) {
-//            ArrayList<String> idList = database.stringListQuery("id", query);
+//        StringBuilder queryBuilder = new StringBuilder("SELECT r.id FROM requests r " +
+//                "JOIN request_processes rp ON r.id = rp.request_id " +
+//                "WHERE r.status != 'Новая' AND ");
 //
-//            for (String idStr : idList) {
-//                int id = Integer.parseInt(idStr);
-//                requestMap.put(id, new Request(id));
-//                repairRequestListView.getItems().add(idStr);
+//        List<String> conditions = new ArrayList<>();
+//
+//        // Фильтры по состояниям (используем оператор OR между выбранными состояниями)
+//        List<String> stateConditions = new ArrayList<>();
+//        for (Node node : statesVBox.getChildren()) {
+//            if (node instanceof CheckBox) {
+//                CheckBox checkbox = (CheckBox) node;
+//                if (checkbox.isSelected()) {
+//                    stateConditions.add("r.status = '" + checkbox.getText() + "'");
+//                }
 //            }
-//
-//            if (filterApplied) {
-//                applyFilters();
-//            }
-//
-//        } else {
-//            MyAlert.showErrorAlert("Ошибка: роль " + role + " не найдена");
 //        }
+//        if (!stateConditions.isEmpty()) {
+//            conditions.add("(" + String.join(" OR ", stateConditions) + ")");
+//        }
+//
+//        // Фильтры по приоритетам (используем оператор OR между выбранными приоритетами)
+//        List<String> priorityConditions = new ArrayList<>();
+//        for (Node node : priorityVBox.getChildren()) {
+//            if (node instanceof CheckBox) {
+//                CheckBox checkbox = (CheckBox) node;
+//                if (checkbox.isSelected()) {
+//                    priorityConditions.add("rp.priority = '" + checkbox.getText() + "'");
+//                }
+//            }
+//        }
+//        if (!priorityConditions.isEmpty()) {
+//            conditions.add("(" + String.join(" OR ", priorityConditions) + ")");
+//        }
+//
+//        // Фильтр по дате создания заявки
+//        String selectedDate = dateFilterTF.getText();
+//        if (selectedDate != null && !selectedDate.trim().isEmpty()) {
+//            conditions.add("r.id IN (SELECT request_id FROM request_regs WHERE date_start = '" + selectedDate + "')");
+//        }
+//
+//        // Фильтр по номеру заявки
+//        String requestNumber = idFilterTF.getText().trim();
+//        if (!requestNumber.isEmpty()) {
+//            try {
+//                int requestId = Integer.parseInt(requestNumber);
+//                conditions.add("r.id = " + requestId);
+//            } catch (NumberFormatException e) {
+//                e.printStackTrace();
+//                MyAlert.showErrorAlert("Неверный формат номера заявки.");
+//                return;
+//            }
+//        }
+//
+//        // Строим окончательное условие WHERE
+//        if (!conditions.isEmpty()) {
+//            queryBuilder.append(String.join(" AND ", conditions));
+//        } else {
+//            queryBuilder.append("1=1"); // Если фильтры не выбраны, выбираем все заявки
+//        }
+//
+//        queryBuilder.append(" ORDER BY r.id");
+//
+//        // Выполняем SQL-запрос и заполняем ListView
+//        try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
+//            String query = queryBuilder.toString();
+//            loadRepairRequests(connection, query);
+//
+//            // Проверяем, видима ли подробная информация после применения фильтров
+//            if (!isRequestIdInFilteredResults(currentRequestNumber)) {
+//                moreInfoPane.setVisible(false);
+//            }
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            MyAlert.showErrorAlert("Ошибка при соединении с базой данных.");
+//        }
+//
+//        MyAlert.showInfoAlert("Фильтры успешно применены");
 //    }
+//
+//    private boolean isRequestIdInFilteredResults(int requestId) {
+//        ObservableList<String> filteredItems = repairRequestListView.getItems();
+//        for (String item : filteredItems) {
+//            if (Integer.parseInt(item) == requestId) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+//
+//
+//
+//
+
+
+
+
+
+
 
 
     public void loadRepairRequests() {
@@ -188,25 +286,13 @@ public class UniversalRequestsTabController implements Initializable {
         if (role.equals("admin")) {
             return "SELECT id FROM requests WHERE status != 'Новая' ORDER BY id";
 
-        } else if (role.equals("manager_new")) {
+        } else if (role.equals("admin_new")) {
             return "SELECT id FROM requests WHERE status = 'Новая' ORDER BY id";
 
-        } else if (role.equals("resp_repairer")) {
+        } else if (role.equals("user")) {
             return "SELECT r.id " +
                     "FROM requests r " +
-                    "JOIN assignments a ON r.id = a.id_request " +
-                    "WHERE r.status != 'Новая' " +
-                    "AND a.member_id = " + MainViewController.userID + " " +
-                    "AND a.is_responsible = true " +
-                    "ORDER BY r.id";
-
-        } else if (role.equals("addit_repairer")) {
-            return "SELECT r.id " +
-                    "FROM requests r " +
-                    "JOIN assignments a ON r.id = a.id_request " +
-                    "WHERE r.status != 'Новая' " +
-                    "AND a.member_id = " + MainViewController.userID + " " +
-                    "AND a.is_responsible = false " +
+                    "WHERE r.member_id = " + MainViewController.userID + " " +
                     "ORDER BY r.id";
         } else {
             return null;
@@ -229,21 +315,25 @@ public class UniversalRequestsTabController implements Initializable {
     public void onActionSave() {
 
         String stateValue;
-        if (role.equals("manager_new")) {
+        if (role.equals("admin_new")) {
             stateValue = "В работе";
         } else {
             stateValue = stateChoice.getValue();
         }
 
         requestMap.get(currentRequestNumber).updateRequestInDB(
-                equipDetailsArea.getText(),
-                equipLocationField.getText(),
-                equipConditionField.getText(),
-                descriptionTextArea.getText(),
+                equipTypeField.getText(),
+                problemDescTextArea.getText(),
                 commentsTextArea.getText(),
-                stateValue);
+                stateChoice.getValue(),
+                equipNameField.getText(),
+                conditionChoiceBox.getValue(),
+                detalsTextArea.getText(),
+                locationField.getText()
+        );
 
-        if (role.equals("manager_new")) {
+
+        if (role.equals("admin_new")) {
             moreInfoPane.setVisible(false);
             loadRepairRequests();
         } else {
@@ -251,7 +341,7 @@ public class UniversalRequestsTabController implements Initializable {
         }
     }
 
-
+//TODO: поля поменять для отчета
     public void onActionCreateOrCheckReport() {
 
         if (createOrCheckReportBtn.getText().equals("Посмотреть отчёт")) {
@@ -284,26 +374,32 @@ public class UniversalRequestsTabController implements Initializable {
         Request request = requestMap.get(requestId);
 
         requestNumberLabel.setText("Заявка №" + requestId);
-        equipSerialField.setText(request.getSerial_num());
         equipTypeField.setText(request.getEquip_type());
-        equipNameField.setText(request.getEquip_name());
-        equipConditionField.setText(request.getEquip_condition());
-        equipDetailsArea.setText(request.getEquip_details());
-        equipLocationField.setText(request.getEquip_location());
-        descriptionTextArea.setText(request.getProblem_desc());
-        clientNameLabel.setText("ФИО: " + request.getClient_name());
-        clientPhoneLabel.setText("Телефон: " + request.getClient_phone());
-        clientEmailLabel.setText("Телефон: " + request.getClient_email());
+//        descriptionTextArea.setText(request.getProblem_desc());
         commentsTextArea.setText(request.getRequest_comments());
-        registerDateTF.setText(request.getDate_start());
+//        registerDateTF.setText(request.getDate_start());
 
-        if (!role.equals("manager_new")) {
+        //TODO: отдельные для пользователей
+
+        serialNumField.setText(request.getSerial_num());
+        equipNameField.setText(request.getEquip_name());
+        conditionChoiceBox.setValue(request.getCondition());
+        detalsTextArea.setText(request.getDetals());
+        locationField.setText(request.getLocation());
+        problemDescTextArea.setText(request.getProblem_desc());
+        stateChoice.setValue(request.getStatus());
+        dateStartField.setText(request.getDate_start());
+        clientNameField.setText(request.getClient_name());
+        clientPhoneField.setText(request.getClient_phone());
+        emailField.setText(request.getEmail());
+
+        if (!role.equals("admin_new")) {
             stateChoice.setValue(request.getStatus());
         }
 
         // Отображение кнопки для проверки отчета в зависимости от состояния
         String currentState = request.getStatus();
-        if (currentState.equals("Выполнено") || currentState.equals("Закрыта")) {
+        if (currentState.equals("Выполнено")) {
 
             if (role.equals("admin")) {
                 ArrayList<String> reportValues = database.executeQueryAndGetColumnValues(
@@ -315,12 +411,10 @@ public class UniversalRequestsTabController implements Initializable {
                     createOrCheckReportBtn.setText("Создать отчёт");
                 }
             }
-
             createOrCheckReportBtn.setVisible(true);
         } else {
             createOrCheckReportBtn.setVisible(false);
         }
-
         moreInfoPane.setVisible(true);
     }
 }

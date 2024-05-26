@@ -4,19 +4,26 @@ import java.sql.*;
 
 public class Request {
     int id;
+
     String serial_num;
-    String equip_type;
     String equip_name;
-    String equip_details;
-    String equip_location;
-    String equip_condition;
+    String equip_type;
+    String condition;
+    String detals;
+    String location;
+
     String problem_desc;
-    String client_name;
-    String client_phone;
-    String client_email;
+    String request_comments;
     String status;
     String date_start;
-    String request_comments;
+    int member_id;
+
+    String client_name;
+    String client_phone;
+    String email;
+    String login;
+    String pass;
+    String role;
 
     Database database;
 
@@ -27,34 +34,44 @@ public class Request {
         loadInfoFromDB();
     }
 
-    public void updateRequestInDB(String equip_details,
-                                  String equip_location,
-                                  String equip_condition,
+    public void updateRequestInDB(
+//            String equip_num,
+                                  String equip_type,
                                   String problem_desc,
                                   String request_comments,
-                                  String status) {
+                                  String status,
+                                  String equip_name,
+                                  String condition,
+                                  String detals,
+                                  String location
+                                  ) {
 
-        this.equip_details = equip_details;
-        this.equip_location = equip_location;
-        this.equip_condition = equip_condition;
+//        this.serial_num = equip_num;
         this.problem_desc = problem_desc;
         this.request_comments = request_comments;
         this.status = status;
 
+        this.equip_type = equip_type;
+        this.equip_name = equip_name;
+        this.condition = condition;
+        this.detals = detals;
+        this.location = location;
+
+
         database = Database.getInstance();
 
-        // Обновление таблицы equipment
-        String updateEquipmentQuery = String.format("UPDATE equipment " +
-                "SET details = '%s', location = '%s', condition = '%s' " +
-                "WHERE serial_num = (SELECT serial_num FROM requests WHERE id = %d)", equip_details, equip_location, equip_condition, id);
-        database.simpleQuery(updateEquipmentQuery);
-
-// Обновление таблицы requests
+        // Обновляем запись в таблице requests
         String updateRequestsQuery = String.format("UPDATE requests " +
                 "SET problem_desc = '%s', request_comments = '%s', status = '%s' " +
                 "WHERE id = %d", problem_desc, request_comments, status, id);
         database.simpleQuery(updateRequestsQuery);
 
+
+        // Обновляем запись в таблице requests
+        String updateEquipQuery = String.format("UPDATE equipment " +
+                "SET equip_type = '%s', equip_name = '%s', condition = '%s', detals = '%s', location = '%s' " +
+                "WHERE serial_num = '%s'", equip_type, equip_name, condition, detals, location, serial_num);
+        database.simpleQuery(updateEquipQuery);
 
         MyAlert.showInfoAlert("Информация по заявке обновлена успешно.");
     }
@@ -62,12 +79,12 @@ public class Request {
     public void loadInfoFromDB() {
         database = Database.getInstance();
         try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
-            String query = "SELECT r.id, r.serial_num, r.problem_desc, r.request_comments, r.status, r.date_start, " +
-                    "m.name, m.phone, m.e_mail, " +
-                    "e.equip_name, e.equip_type, e.condition, e.details, e.location " +
+            String query = "SELECT r.id, r.serial_num, r.problem_desc, r.request_comments, r.status, " +
+                    "r.date_start, r.member_id, e.equip_name, e.equip_type, e.condition, e.detals, e.location, " +
+                    "m.name, m.phone, m.email, m.login, m.pass, m.role " +
                     "FROM requests r " +
-                    "JOIN members m ON r.member_id = m.id " +
                     "JOIN equipment e ON r.serial_num = e.serial_num " +
+                    "JOIN members m ON r.member_id = m.id " +
                     "WHERE r.id = ?";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -80,18 +97,19 @@ public class Request {
                         problem_desc = resultSet.getString("problem_desc");
                         request_comments = resultSet.getString("request_comments");
                         status = resultSet.getString("status");
-                        client_name = resultSet.getString("name");
-                        client_phone = resultSet.getString("phone");
-                        client_email = resultSet.getString("e_mail");
+                        date_start = resultSet.getString("date_start");
+                        member_id = resultSet.getInt("member_id");
                         equip_name = resultSet.getString("equip_name");
                         equip_type = resultSet.getString("equip_type");
-                        equip_condition = resultSet.getString("condition");
-                        equip_details = resultSet.getString("details");
-                        equip_location = resultSet.getString("location");
-
-                        // Используется getString вместо getDate, чтобы избежать NullPointerException в случае,
-                        // когда эти данные у заявки ещё отсутствуют
-                        date_start = resultSet.getString("date_start");
+                        condition = resultSet.getString("condition");
+                        detals = resultSet.getString("detals");
+                        location = resultSet.getString("location");
+                        client_name = resultSet.getString("name");
+                        client_phone = resultSet.getString("phone");
+                        email = resultSet.getString("email");
+                        login = resultSet.getString("login");
+                        pass = resultSet.getString("pass");
+                        role = resultSet.getString("role");
                     }
                 }
             }
@@ -100,7 +118,6 @@ public class Request {
             MyAlert.showErrorAlert("Ошибка при получении информации о заявке.");
         }
     }
-
 
 //    public boolean deleteRequestInDB() {
 //        String idStr = String.valueOf(id);
@@ -116,6 +133,46 @@ public class Request {
 
     public int getId() {
         return id;
+    }
+
+    public String getEquip_name() {
+        return equip_name;
+    }
+
+    public String getCondition() {
+        return condition;
+    }
+
+    public String getDetals() {
+        return detals;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public int getMember_id() {
+        return member_id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public String getPass() {
+        return pass;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public Database getDatabase() {
+        return database;
     }
 
     public String getEquip_type() {
@@ -150,27 +207,4 @@ public class Request {
         return request_comments;
     }
 
-    public String getEquip_name() {
-        return equip_name;
-    }
-
-    public String getEquip_details() {
-        return equip_details;
-    }
-
-    public String getEquip_location() {
-        return equip_location;
-    }
-
-    public String getEquip_condition() {
-        return equip_condition;
-    }
-
-    public String getClient_email() {
-        return client_email;
-    }
-
-    public Database getDatabase() {
-        return database;
-    }
 }

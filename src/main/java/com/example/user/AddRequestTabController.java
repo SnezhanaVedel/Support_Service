@@ -1,5 +1,6 @@
-package com.example.controller.operator_tabs;
+package com.example.user;
 
+import com.example.controller.MainViewController;
 import com.example.util.Database;
 import com.example.util.MyAlert;
 import javafx.fxml.FXML;
@@ -13,13 +14,9 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
 
-import static com.example.controller.MainViewController.userID;
-
-public class AddRequestTabController implements Initializable {
-    public TextField clientNameField;
-    public TextField clientPhoneField;
+public class
+AddRequestTabController implements Initializable {
     public TextField serialNumberField;
-    public TextField equipTypeField;
     public TextArea descTextArea;
     public Button createRequestBtn;
     public Button clearFieldsBtn;
@@ -43,7 +40,7 @@ public class AddRequestTabController implements Initializable {
     public void onActionAdd() {
         String insertRequestsSql = String.format(
                 "INSERT INTO requests (serial_num, problem_desc, request_comments, status, date_start, member_id) VALUES ('%s', '%s', '%s', '%s', '%s', %d)",
-                serialNumberField.getText(), descTextArea.getText(), "", "Новая", Date.valueOf(LocalDate.now()), userID);
+                serialNumberField.getText(), descTextArea.getText(), " ", "Новая", Date.valueOf(LocalDate.now()), MainViewController.userID);
         database.simpleQuery(insertRequestsSql);
 
         MyAlert.showInfoAlert("Запись добавлена успешно.");

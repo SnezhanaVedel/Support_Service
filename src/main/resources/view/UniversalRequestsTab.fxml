@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane prefHeight="1800.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane prefHeight="2500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <center>
       <SplitPane dividerPositions="0.5" minHeight="200.0" minWidth="200.0" BorderPane.alignment="CENTER">
          <items>
@@ -33,102 +33,97 @@
                                  </font>
                               </Label>
                               <Separator prefWidth="200.0" />
-                              <Label text="Серийный номер оборудования">
+                              <Label text="Серийный номер">
                                  <font>
                                     <Font name="Arial Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <TextField fx:id="equipSerialField" editable="false" maxWidth="300.0" />
+                              <TextField fx:id="serialNumField" editable="false" maxWidth="300.0" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Название оборудования">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="equipNameField" maxWidth="300.0" />
                               <Separator prefWidth="200.0" />
                               <Label text="Тип оборудования">
                                  <font>
                                     <Font name="Arial Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <TextField fx:id="equipTypeField" editable="false" maxWidth="300.0" />
+                              <TextField fx:id="equipTypeField" maxWidth="300.0" />
                               <Separator prefWidth="200.0" />
-                              <Label text="Наименование оборудования">
+                              <Label text="Состояние">
                                  <font>
                                     <Font name="Arial Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <TextField fx:id="equipNameField" editable="false" maxWidth="300.0" />
+                              <ChoiceBox fx:id="conditionChoiceBox" prefWidth="150.0" />
                               <Separator prefWidth="200.0" />
-                              <Label text="Состояние оборудования">
+                              <Label text="Детали">
                                  <font>
                                     <Font name="Arial Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <TextField fx:id="equipConditionField" maxWidth="300.0" />
+                              <TextArea fx:id="detalsTextArea" maxWidth="300.0" prefHeight="100.0" />
                               <Separator prefWidth="200.0" />
-                              <Label text="Информация об оборудовании">
+                              <Label text="Местоположение">
                                  <font>
                                     <Font name="Arial Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <TextArea fx:id="equipDetailsArea" maxWidth="300.0" prefHeight="100.0" prefWidth="200.0" wrapText="true" />
-                              <Separator prefWidth="200.0" />
-                              <Label text="Местонахождение оборудования">
-                                 <font>
-                                    <Font name="Arial Bold" size="14.0" />
-                                 </font>
-                              </Label>
-                              <TextField fx:id="equipLocationField" maxWidth="300.0" />
+                              <TextField fx:id="locationField" maxWidth="300.0" />
                               <Separator prefWidth="200.0" />
                               <Label text="Описание проблемы">
                                  <font>
                                     <Font name="Arial Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <TextArea fx:id="descriptionTextArea" maxWidth="300.0" prefHeight="100.0" prefWidth="200.0" wrapText="true" />
-                              <Separator prefWidth="200.0" />
-                              <Label text="Клиент">
-                                 <font>
-                                    <Font name="Arial Bold" size="14.0" />
-                                 </font>
-                              </Label>
-                              <Label fx:id="clientNameLabel" layoutX="30.0" layoutY="481.0" text="ФИО: Иванов Иван Иванович">
-                                 <font>
-                                    <Font name="Arial" size="14.0" />
-                                 </font>
-                              </Label>
-                              <Label fx:id="clientPhoneLabel" text="Телефон: +79997776655">
-                                 <font>
-                                    <Font name="Arial" size="14.0" />
-                                 </font>
-                              </Label>
-                              <Label fx:id="clientEmailLabel" layoutX="30.0" layoutY="449.0" text="E-mail: sample@mail.com">
-                                 <font>
-                                    <Font name="Arial" size="14.0" />
-                                 </font>
-                              </Label>
+                              <TextArea fx:id="problemDescTextArea" maxWidth="300.0" prefHeight="100.0" wrapText="true" />
                               <Separator prefWidth="200.0" />
                               <Label text="Комментарии к заявке">
                                  <font>
                                     <Font name="Arial Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <TextArea fx:id="commentsTextArea" layoutX="30.0" layoutY="338.0" maxWidth="300.0" prefHeight="100.0" prefWidth="200.0" wrapText="true" />
-                              <VBox fx:id="stateVBox" spacing="20.0">
-                                 <children>
-                                    <Separator prefWidth="200.0" />
-                                    <Label text="Статус заявки">
-                                       <font>
-                                          <Font name="Arial Bold" size="14.0" />
-                                       </font>
-                                    </Label>
-                                    <ChoiceBox fx:id="stateChoice" prefWidth="150.0" />
-                                 </children>
-                              </VBox>
-                              <Separator layoutX="30.0" layoutY="1080.0" prefWidth="200.0" />
-                              <Label layoutX="30.0" layoutY="791.0" text="Дата регистрации заявки">
+                              <TextArea fx:id="commentsTextArea" maxWidth="300.0" prefHeight="100.0" wrapText="true" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Статус">
                                  <font>
                                     <Font name="Arial Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <TextField fx:id="registerDateTF" editable="false" />
-                              <Separator layoutX="30.0" layoutY="976.0" prefWidth="200.0" />
-                              <HBox alignment="CENTER" spacing="20.0" />
+                              <ChoiceBox fx:id="stateChoice" prefWidth="150.0" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Дата начала">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="dateStartField" editable="false" maxWidth="300.0" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Имя клиента">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="clientNameField" editable="false" maxWidth="300.0" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Телефон клиента">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="clientPhoneField" editable="false" maxWidth="300.0" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Email клиента">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="emailField" editable="false" maxWidth="300.0" />
+                              <Separator prefWidth="200.0" />
                            </children>
                            <padding>
                               <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
@@ -166,7 +161,8 @@
             <Label text="Фильтры" textFill="#5b5b5b">
                <font>
                   <Font name="Arial Bold" size="18.0" />
-               </font></Label>
+               </font>
+            </Label>
             <Label text="Номер заявки">
                <font>
                   <Font name="Arial" size="14.0" />

@@ -1,4 +1,4 @@
-package com.example.controller.manager_tabs;
+package com.example.admin;
 
 import com.example.util.Database;
 import com.example.util.FaultType;
@@ -10,7 +10,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-import javax.xml.crypto.Data;
 import java.sql.*;
 
 public class StatisticsTabController {
@@ -40,11 +39,12 @@ public class StatisticsTabController {
     private void calculateStatistics() {
         numOfCompletedRequestsTF.setText(database.singleValueQuery("SELECT COUNT(*) FROM reports"));
 
-            double avgTime = 0;
+        double avgTime = 0;
         try {
             avgTime = Double.parseDouble(database.singleValueQuery("SELECT AVG(time) FROM reports"));
         } catch (NullPointerException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            System.out.println("Отчеты не найдены");
         }
         avgTimeTF.setText(String.format("%.2f", avgTime));
 
