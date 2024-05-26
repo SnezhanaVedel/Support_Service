@@ -4,12 +4,9 @@ import com.example.util.Database;
 import com.example.util.MyAlert;
 import com.example.util.Request;
 import com.example.util.UniversalAddDialog;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -17,14 +14,8 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class UniversalRequestsTabController implements Initializable {
@@ -49,6 +40,8 @@ public class UniversalRequestsTabController implements Initializable {
     public Button refreshListBtn;
     public Button createOrCheckReportBtn;
 
+
+
     @FXML
     private TextField serialNumField;
     @FXML
@@ -71,8 +64,8 @@ public class UniversalRequestsTabController implements Initializable {
     private TextField clientPhoneField;
     @FXML
     private TextField emailField;
-    public VBox priorityVBox;
-    public TextField dateFilterTF;
+
+
 
     private Database database;
     private int currentRequestNumber = -1;
@@ -93,15 +86,12 @@ public class UniversalRequestsTabController implements Initializable {
         moreInfoPane.setVisible(false);
         createOrCheckReportBtn.setVisible(false);
 
-        try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
-            loadRepairRequests(connection, getQueryForRole());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            MyAlert.showErrorAlert("Ошибка при соединении с базой данных.");
-        }
+        loadRepairRequests();
+        //TODO: убрать статус ЗАКРЫТА в остальных частях кода
 
         stateChoice.getItems().addAll("В работе", "Выполнено", "В ожидании");
-        conditionChoiceBox.getItems().addAll("Исправно", "Не исправно", "Требуются запчасти");
+        //TODO: перечень состояний возможно поменять
+        conditionChoiceBox.getItems().addAll("Исправно","Не исправно","Требуются запчасти");
 
         repairRequestListView.setOnMouseClicked(event -> {
             int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
@@ -115,186 +105,215 @@ public class UniversalRequestsTabController implements Initializable {
     }
 
     @FXML
-    public void applyFilters(ActionEvent event) {
-        if (stateVBox == null || dateFilterTF == null) {
-            MyAlert.showErrorAlert("Не все фильтры инициализированы.");
-            return;
-        }
+    public void applyFilters() {
+        if (!idFilterTF.getText().trim().equals("")) {
+            int requestId = Integer.parseInt(idFilterTF.getText());
 
-        repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
+            if (requestMap.containsKey(requestId)) {
+                repairRequestListView.getItems().clear();
+                repairRequestListView.getItems().add(String.valueOf(requestId));
+                filterApplied = true;
+                showMoreInfo(requestId);
 
-        StringBuilder queryBuilder = new StringBuilder("SELECT r.id FROM requests r " +
-                "JOIN request_processes rp ON r.id = rp.request_id " +
-                "WHERE r.status != 'Новая' AND ");
-
-        List<String> conditions = new ArrayList<>();
-
-        // Фильтры по состояниям (используем оператор OR между выбранными состояниями)
-        List<String> stateConditions = new ArrayList<>();
-        for (Node node : stateVBox.getChildren()) {
-            if (node instanceof CheckBox) {
-                CheckBox checkbox = (CheckBox) node;
-                if (checkbox.isSelected()) {
-                    stateConditions.add("r.status = '" + checkbox.getText() + "'");
-                }
-            }
-        }
-        if (!stateConditions.isEmpty()) {
-            conditions.add("(" + String.join(" OR ", stateConditions) + ")");
-        }
-
-        // Фильтры по приоритетам (используем оператор OR между выбранными приоритетами)
-        List<String> priorityConditions = new ArrayList<>();
-        for (Node node : priorityVBox.getChildren()) {
-            if (node instanceof CheckBox) {
-                CheckBox checkbox = (CheckBox) node;
-                if (checkbox.isSelected()) {
-                    priorityConditions.add("rp.priority = '" + checkbox.getText() + "'");
-                }
-            }
-        }
-        if (!priorityConditions.isEmpty()) {
-            conditions.add("(" + String.join(" OR ", priorityConditions) + ")");
-        }
-
-        // Фильтр по дате создания заявки
-        String selectedDate = dateFilterTF.getText();
-        if (selectedDate != null && !selectedDate.trim().isEmpty()) {
-            conditions.add("r.id IN (SELECT request_id FROM request_regs WHERE date_start = '" + selectedDate + "')");
-        }
-
-        // Фильтр по номеру заявки
-        String requestNumber = idFilterTF.getText().trim();
-        if (!requestNumber.isEmpty()) {
-            try {
-                int requestId = Integer.parseInt(requestNumber);
-                conditions.add("r.id = " + requestId);
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-                MyAlert.showErrorAlert("Неверный формат номера заявки.");
-                return;
-            }
-        }
-
-        // Строим окончательное условие WHERE
-        if (!conditions.isEmpty()) {
-            queryBuilder.append(String.join(" AND ", conditions));
-        } else {
-            queryBuilder.append("1=1"); // Если фильтры не выбраны, выбираем все заявки
-        }
-
-        queryBuilder.append(" ORDER BY r.id");
-
-        // Выполняем SQL-запрос и заполняем ListView
-        try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
-            String query = queryBuilder.toString();
-            loadRepairRequests(connection, query);
-
-            // Проверяем, видима ли подробная информация после применения фильтров
-            if (!isRequestIdInFilteredResults(currentRequestNumber)) {
+            } else {
+                filterApplied = false;
                 moreInfoPane.setVisible(false);
+                clearFilters();
+                MyAlert.showErrorAlert(String.format("Заявка с номером %d не найдена", requestId));
             }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            MyAlert.showErrorAlert("Ошибка при соединении с базой данных.");
+        } else {
+            filterApplied = false;
         }
-
-        MyAlert.showInfoAlert("Фильтры успешно применены");
     }
 
-    private boolean isRequestIdInFilteredResults(int requestId) {
-        ObservableList<String> filteredItems = repairRequestListView.getItems();
-        for (String item : filteredItems) {
-            if (Integer.parseInt(item) == requestId) {
-                return true;
-            }
-        }
-        return false;
-    }
+    //TODO: фильтры
 
-    public void loadRepairRequests(Connection connection, String query) {
+//
+//     @FXML
+//    public void applyFilters(ActionEvent event) {
+//        repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
+//
+//        StringBuilder queryBuilder = new StringBuilder("SELECT r.id FROM requests r " +
+//                "JOIN request_processes rp ON r.id = rp.request_id " +
+//                "WHERE r.status != 'Новая' AND ");
+//
+//        List<String> conditions = new ArrayList<>();
+//
+//        // Фильтры по состояниям (используем оператор OR между выбранными состояниями)
+//        List<String> stateConditions = new ArrayList<>();
+//        for (Node node : statesVBox.getChildren()) {
+//            if (node instanceof CheckBox) {
+//                CheckBox checkbox = (CheckBox) node;
+//                if (checkbox.isSelected()) {
+//                    stateConditions.add("r.status = '" + checkbox.getText() + "'");
+//                }
+//            }
+//        }
+//        if (!stateConditions.isEmpty()) {
+//            conditions.add("(" + String.join(" OR ", stateConditions) + ")");
+//        }
+//
+//        // Фильтры по приоритетам (используем оператор OR между выбранными приоритетами)
+//        List<String> priorityConditions = new ArrayList<>();
+//        for (Node node : priorityVBox.getChildren()) {
+//            if (node instanceof CheckBox) {
+//                CheckBox checkbox = (CheckBox) node;
+//                if (checkbox.isSelected()) {
+//                    priorityConditions.add("rp.priority = '" + checkbox.getText() + "'");
+//                }
+//            }
+//        }
+//        if (!priorityConditions.isEmpty()) {
+//            conditions.add("(" + String.join(" OR ", priorityConditions) + ")");
+//        }
+//
+//        // Фильтр по дате создания заявки
+//        String selectedDate = dateFilterTF.getText();
+//        if (selectedDate != null && !selectedDate.trim().isEmpty()) {
+//            conditions.add("r.id IN (SELECT request_id FROM request_regs WHERE date_start = '" + selectedDate + "')");
+//        }
+//
+//        // Фильтр по номеру заявки
+//        String requestNumber = idFilterTF.getText().trim();
+//        if (!requestNumber.isEmpty()) {
+//            try {
+//                int requestId = Integer.parseInt(requestNumber);
+//                conditions.add("r.id = " + requestId);
+//            } catch (NumberFormatException e) {
+//                e.printStackTrace();
+//                MyAlert.showErrorAlert("Неверный формат номера заявки.");
+//                return;
+//            }
+//        }
+//
+//        // Строим окончательное условие WHERE
+//        if (!conditions.isEmpty()) {
+//            queryBuilder.append(String.join(" AND ", conditions));
+//        } else {
+//            queryBuilder.append("1=1"); // Если фильтры не выбраны, выбираем все заявки
+//        }
+//
+//        queryBuilder.append(" ORDER BY r.id");
+//
+//        // Выполняем SQL-запрос и заполняем ListView
+//        try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
+//            String query = queryBuilder.toString();
+//            loadRepairRequests(connection, query);
+//
+//            // Проверяем, видима ли подробная информация после применения фильтров
+//            if (!isRequestIdInFilteredResults(currentRequestNumber)) {
+//                moreInfoPane.setVisible(false);
+//            }
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            MyAlert.showErrorAlert("Ошибка при соединении с базой данных.");
+//        }
+//
+//        MyAlert.showInfoAlert("Фильтры успешно применены");
+//    }
+//
+//    private boolean isRequestIdInFilteredResults(int requestId) {
+//        ObservableList<String> filteredItems = repairRequestListView.getItems();
+//        for (String item : filteredItems) {
+//            if (Integer.parseInt(item) == requestId) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+//
+//
+//
+//
+
+
+
+
+
+
+
+
+    public void loadRepairRequests() {
         repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
-        requestMap.clear(); // Clear the request map
+        requestMap.clear();
 
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+        String query = getQueryForRole();
+        if (query != null) {
+            ArrayList<String> idList = database.stringListQuery("id", query);
 
-            while (rs.next()) {
-                int id = rs.getInt("id");
+            for (String idStr : idList) {
+                int id = Integer.parseInt(idStr);
                 requestMap.put(id, new Request(id));
-                repairRequestListView.getItems().add(String.valueOf(id));
+                repairRequestListView.getItems().add(idStr);
             }
 
-            // Устанавливаем фабрику ячеек для repairRequestListView
-            repairRequestListView.setCellFactory(param -> new ListCell<String>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
+            if (filterApplied) {
+                applyFilters();
+            }
 
-                    if (item == null || empty) {
-                        setGraphic(null);
-                    } else {
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ListItem.fxml"));
-                        try {
-                            Parent root = loader.load();
-                            ListItemController controller = loader.getController();
-                            controller.setRequestNumber(Integer.parseInt(item));
-                            setGraphic(root);
-                        } catch (IOException e) {
-                            e.printStackTrace();
+            // Вот код, который вы хотите добавить, чтобы установить фабрику ячеек для repairRequestListView
+            repairRequestListView.setCellFactory(param -> {
+                return new ListCell<String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (item == null || empty) {
                             setGraphic(null);
+                        } else {
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ListItem.fxml"));
+                            try {
+                                Parent root = loader.load();
+                                ListItemController controller = loader.getController();
+                                controller.setRequestNumber(Integer.parseInt(item));
+                                setGraphic(root);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                setGraphic(null);
+                            }
                         }
                     }
-                }
+                };
             });
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            MyAlert.showErrorAlert("Ошибка при загрузке заявок из базы данных.");
+        } else {
+            MyAlert.showErrorAlert("Ошибка: роль " + role + " не найдена");
         }
     }
+
+
+    private String getQueryForRole() {
+        if (role.equals("admin")) {
+            return "SELECT id FROM requests WHERE status != 'Новая' ORDER BY id";
+
+        } else if (role.equals("admin_new")) {
+            return "SELECT id FROM requests WHERE status = 'Новая' ORDER BY id";
+
+        } else if (role.equals("user")) {
+            return "SELECT r.id " +
+                    "FROM requests r " +
+                    "WHERE r.member_id = " + MainViewController.userID + " " +
+                    "ORDER BY r.id";
+        } else {
+            return null;
+        }
+    }
+
 
     @FXML
     public void clearFilters() {
         idFilterTF.clear();
-        // Очистка выбора с чекбоксов состояний
-        for (Node node : stateVBox.getChildren()) {
-            if (node instanceof CheckBox) {
-                ((CheckBox) node).setSelected(false);
-            }
-        }
-
-        // Очистка выбора с чекбоксов приоритета
-        for (Node node : priorityVBox.getChildren()) {
-            if (node instanceof CheckBox) {
-                ((CheckBox) node).setSelected(false);
-            }
-        }
-
-        // Очистка полей под дату и номер заявки
-        dateFilterTF.clear();
-        idFilterTF.clear();
-
-        try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
-            loadRepairRequests(connection, getQueryForRole());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            MyAlert.showErrorAlert("Ошибка при соединении с базой данных.");
-        }
+        loadRepairRequests();
     }
 
     @FXML
     public void onActionRefresh() {
-        try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
-            loadRepairRequests(connection, getQueryForRole());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            MyAlert.showErrorAlert("Ошибка при соединении с базой данных.");
-        }
+        loadRepairRequests();
     }
 
+
     public void onActionSave() {
+
         String stateValue;
         if (role.equals("admin_new")) {
             stateValue = "В работе";
@@ -313,21 +332,20 @@ public class UniversalRequestsTabController implements Initializable {
                 locationField.getText()
         );
 
+
         if (role.equals("admin_new")) {
             moreInfoPane.setVisible(false);
-            try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
-                loadRepairRequests(connection, getQueryForRole());
-            } catch (SQLException e) {
-                e.printStackTrace();
-                MyAlert.showErrorAlert("Ошибка при соединении с базой данных.");
-            }
+            loadRepairRequests();
         } else {
             showMoreInfo(currentRequestNumber);
         }
     }
 
+//TODO: поля поменять для отчета
     public void onActionCreateOrCheckReport() {
+
         if (createOrCheckReportBtn.getText().equals("Посмотреть отчёт")) {
+
             ArrayList<String> reportValues = database.executeQueryAndGetColumnValues(
                     "SELECT * FROM reports WHERE request_id = " + currentRequestNumber);
 
@@ -349,6 +367,7 @@ public class UniversalRequestsTabController implements Initializable {
             new UniversalAddDialog("reports", database.getAllTableColumnNames("reports"));
             showMoreInfo(currentRequestNumber);
         }
+
     }
 
     public void showMoreInfo(int requestId) {
@@ -356,7 +375,11 @@ public class UniversalRequestsTabController implements Initializable {
 
         requestNumberLabel.setText("Заявка №" + requestId);
         equipTypeField.setText(request.getEquip_type());
+//        descriptionTextArea.setText(request.getProblem_desc());
         commentsTextArea.setText(request.getRequest_comments());
+//        registerDateTF.setText(request.getDate_start());
+
+        //TODO: отдельные для пользователей
 
         serialNumField.setText(request.getSerial_num());
         equipNameField.setText(request.getEquip_name());
@@ -377,6 +400,7 @@ public class UniversalRequestsTabController implements Initializable {
         // Отображение кнопки для проверки отчета в зависимости от состояния
         String currentState = request.getStatus();
         if (currentState.equals("Выполнено")) {
+
             if (role.equals("admin")) {
                 ArrayList<String> reportValues = database.executeQueryAndGetColumnValues(
                         "SELECT * FROM reports WHERE request_id = " + currentRequestNumber);
@@ -392,22 +416,5 @@ public class UniversalRequestsTabController implements Initializable {
             createOrCheckReportBtn.setVisible(false);
         }
         moreInfoPane.setVisible(true);
-    }
-
-    private String getQueryForRole() {
-        if (role.equals("admin")) {
-            return "SELECT id FROM requests WHERE status != 'Новая' ORDER BY id";
-
-        } else if (role.equals("admin_new")) {
-            return "SELECT id FROM requests WHERE status = 'Новая' ORDER BY id";
-
-        } else if (role.equals("user")) {
-            return "SELECT r.id " +
-                    "FROM requests r " +
-                    "WHERE r.member_id = " + MainViewController.userID + " " +
-                    "ORDER BY r.id";
-        } else {
-            return null;
-        }
     }
 }
