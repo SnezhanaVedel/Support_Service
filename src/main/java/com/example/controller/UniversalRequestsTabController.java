@@ -104,6 +104,7 @@ public class UniversalRequestsTabController implements Initializable {
         });
     }
 
+
     @FXML
     public void applyFilters() {
         if (!idFilterTF.getText().trim().equals("")) {

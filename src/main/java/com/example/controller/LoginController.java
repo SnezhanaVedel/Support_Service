@@ -62,6 +62,7 @@ public class LoginController implements Initializable {
             Stage stage = new Stage();
             stage.setTitle("");
             stage.setScene(new Scene(loader.load()));
+            stage.setMaximized(true);
             stage.show();
 
             Platform.runLater(() -> ((Stage) btnLogin.getScene().getWindow()).close());

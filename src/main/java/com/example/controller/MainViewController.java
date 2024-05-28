@@ -37,7 +37,7 @@ public class MainViewController implements Initializable {
             addTab("Пользователи", "/view/admin/UniversalTableTab.fxml", new UniversalTableTabController("members"));
             addTab("Оборудование", "/view/admin/UniversalTableTab.fxml", new UniversalTableTabController("equipment"));
             addTab("Заказ запчастей", "/view/admin/UniversalTableTab.fxml", new UniversalTableTabController("orders"));
-            addTab("Статистика", "/view/admin/StatisticsTab.fxml", null);
+            addTab("Статистика", "/view/admin/Statistic.fxml", null);
 
         }
     }
