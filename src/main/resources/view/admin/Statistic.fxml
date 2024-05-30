@@ -3,14 +3,17 @@
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.admin.StatisticController">
-    <PieChart fx:id="faultPieChart" layoutX="14.0" layoutY="14.0" prefHeight="400.0" prefWidth="400.0" />
-    <BarChart fx:id="statisticsBarChart" layoutX="450.0" layoutY="114.0" legendVisible="false" prefHeight="300.0" prefWidth="600.0">
-        <xAxis>
-            <NumberAxis />
-        </xAxis>
-        <yAxis>
-            <CategoryAxis />
-        </yAxis>
-    </BarChart>
-</AnchorPane>
+
+<HBox alignment="CENTER" fillHeight="false" spacing="100.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.admin.StatisticController">
+   <children>
+       <PieChart fx:id="faultPieChart" prefHeight="400.0" prefWidth="400.0" style="-fx-border-color: black; -fx-border-width: 2; -fx-border-radius: 5; -fx-padding: 10;" />
+       <BarChart fx:id="statisticsBarChart" legendVisible="false" prefHeight="300.0" prefWidth="600.0" style="-fx-border-color: black; -fx-border-width: 2; -fx-border-radius: 5; -fx-padding: 10;">
+           <xAxis>
+               <NumberAxis />
+           </xAxis>
+           <yAxis>
+               <CategoryAxis />
+           </yAxis>
+       </BarChart>
+   </children>
+</HBox>

@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import com.example.controller.dialogs.DialogAddMembersController;
 import com.example.util.Database;
 import com.example.util.MyAlert;
 import com.example.util.UniversalAddDialog;
@@ -7,13 +8,17 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -70,8 +75,27 @@ public class UniversalTableTabController implements Initializable {
                 ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
                 columnNames = new ArrayList<>();
 
-                for (int i = 0; i < resultSetMetaData.getColumnCount(); ++i) {
-                    columnNames.add(resultSetMetaData.getColumnName(i + 1));
+                if (selectedTable.equals("equipment")) {
+                    columnNames.add("Серийный номер");
+                    columnNames.add("Наименование оборудования");
+                    columnNames.add("Тип оборудования");
+                    columnNames.add("Состояние");
+                    columnNames.add("Подробная информация");
+                    columnNames.add("Местонахождение");
+                } else if (selectedTable.equals("members")) {
+                    columnNames.add("ID");
+                    columnNames.add("ФИО");
+                    columnNames.add("Номер телефона");
+                    columnNames.add("E-mail");
+                    columnNames.add("Логин");
+                    columnNames.add("Пароль");
+                    columnNames.add("Роль");
+                } else if (selectedTable.equals("orders")) {
+                    columnNames.add("ID");
+                    columnNames.add("ID заявки");
+                    columnNames.add("Тип ресурса");
+                    columnNames.add("Наименование ресурса");
+                    columnNames.add("Стоимость");
                 }
 
                 ObservableList<List<String>> data = FXCollections.observableArrayList();
@@ -127,7 +151,7 @@ public class UniversalTableTabController implements Initializable {
             String columnSearchName = ((TableColumn) tableView.getColumns().get(0)).getText();
             tableView.getItems().remove(selectedIndex);
             if (selectedTable.equals("equipment")){
-                database.deleteQuery(selectedTable, columnSearchName, "'" + columnSearch + "'");
+                database.deleteQuery(selectedTable, "serial_num", "'" + columnSearch + "'");
             } else {
                 database.deleteQuery(selectedTable, columnSearchName, columnSearch);
             }
@@ -137,12 +161,34 @@ public class UniversalTableTabController implements Initializable {
     }
 
     public void onActionAdd() {
-        ArrayList<String> attrList = database.getAllTableColumnNames(selectedTable);
-        if (!selectedTable.equals("equipment")){
-        attrList.remove(0);
+        String path = "";
+        String title = "";
+
+        if (selectedTable.equals("equipment")) {
+            path = "/view/dialogs/DialogAddEquipment.fxml";
+            title = "Добавление нового оборудования";
+        } else if (selectedTable.equals("members")) {
+            path = "/view/dialogs/AddMembersDialog.fxml";
+            title = "Добавление нового пользователя";
+        } else if (selectedTable.equals("orders")) {
+            path = "/view/dialogs/DialogAddOrders.fxml";
+            title = "Добавление нового заказа";
         }
-        new UniversalAddDialog(selectedTable, attrList);
-        updateTable();
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
+
+            // Передача текущего контроллера как userData
+            Stage stage = new Stage();
+            stage.setTitle(title);
+            stage.setScene(new Scene(loader.load()));
+            stage.setUserData(this); // передаем UniversalTableTabController
+
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
 }
 

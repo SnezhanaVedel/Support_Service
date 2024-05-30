@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane prefHeight="2500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane prefHeight="2500.0" prefWidth="700.0" stylesheets="/styles.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <center>
       <SplitPane dividerPositions="0.5" minHeight="200.0" minWidth="200.0" BorderPane.alignment="CENTER">
          <items>
@@ -27,7 +27,7 @@
                      <content>
                         <VBox fx:id="infoVBox" spacing="20.0">
                            <children>
-                              <Label fx:id="requestNumberLabel" text="Заявка №123456">
+                              <Label fx:id="requestNumberLabel" styleClass="roboto-text" text="Заявка №123456">
                                  <font>
                                     <Font name="Arial Bold" size="18.0" />
                                  </font>
@@ -161,8 +161,33 @@
             <Label text="Фильтры" textFill="#5b5b5b">
                <font>
                   <Font name="Arial Bold" size="18.0" />
+               </font></Label>
+            <Label text="Статус заявки">
+               <font>
+                  <Font name="Arial" size="14.0" />
                </font>
+               <padding>
+                  <Insets top="10.0" />
+               </padding>
             </Label>
+            <VBox fx:id="statesVBox" prefWidth="100.0" spacing="10.0">
+               <children>
+                  <CheckBox mnemonicParsing="false" text="В работе" />
+                  <CheckBox mnemonicParsing="false" text="В ожидании" />
+                  <CheckBox mnemonicParsing="false" text="Выполнено" />
+               </children>
+            </VBox>
+            <Separator prefWidth="200.0" />
+            <Label text="Дата создания заявки">
+               <font>
+                  <Font name="Arial" size="14.0" />
+               </font>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </Label>
+            <TextField fx:id="dateFilterTF" />
+            <Separator prefWidth="200.0" />
             <Label text="Номер заявки">
                <font>
                   <Font name="Arial" size="14.0" />
