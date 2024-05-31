@@ -1,19 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
+<?import javafx.scene.text.*?>
 
 <HBox alignment="CENTER" fillHeight="false" spacing="100.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.admin.StatisticController">
-   <children>
-       <PieChart fx:id="faultPieChart" prefHeight="400.0" prefWidth="400.0" style="-fx-border-color: black; -fx-border-width: 2; -fx-border-radius: 5; -fx-padding: 10;" />
-       <BarChart fx:id="statisticsBarChart" legendVisible="false" prefHeight="300.0" prefWidth="600.0" style="-fx-border-color: black; -fx-border-width: 2; -fx-border-radius: 5; -fx-padding: 10;">
-           <xAxis>
-               <NumberAxis />
-           </xAxis>
-           <yAxis>
-               <CategoryAxis />
-           </yAxis>
-       </BarChart>
-   </children>
+    <children>
+        <GridPane alignment="CENTER" hgap="20.0" prefHeight="160.0" prefWidth="434.0" vgap="20.0">
+            <columnConstraints>
+                <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="436.0" minWidth="-Infinity" />
+                <ColumnConstraints fillWidth="false" hgrow="SOMETIMES" maxWidth="405.0" minWidth="-Infinity" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+                <Label alignment="TOP_LEFT" text="Количество выполненных заявок">
+                    <font>
+                        <Font name="Arial" size="16.0" />
+                    </font></Label>
+                <Label text="Среднее время выполнения заявки, дн." GridPane.rowIndex="1">
+                    <font>
+                        <Font name="Arial" size="16.0" />
+                    </font></Label>
+                <TextField fx:id="numOfCompletedRequestsTF" editable="false" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1">
+                    <font>
+                        <Font name="Arial" size="14.0" />
+                    </font></TextField>
+                <TextField fx:id="avgTimeTF" editable="false" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <font>
+                        <Font name="Arial" size="14.0" />
+                    </font></TextField>
+            <Label layoutX="10.0" layoutY="80.0" text="Суммарные расходы, руб." GridPane.rowIndex="2">
+               <font>
+                  <Font name="Arial" size="16.0" />
+               </font>
+            </Label>
+            <TextField fx:id="totalCostTF" editable="false" layoutX="250.0" layoutY="75.0" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+               <font>
+                  <Font name="Arial" size="14.0" />
+               </font>
+            </TextField>
+            </children>
+         <HBox.margin>
+            <Insets />
+         </HBox.margin>
+        </GridPane>
+        <PieChart fx:id="faultPieChart" legendVisible="false" prefHeight="450.0" prefWidth="600.0">
+         <HBox.margin>
+            <Insets />
+         </HBox.margin></PieChart>
+    </children>
 </HBox>

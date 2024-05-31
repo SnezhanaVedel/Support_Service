@@ -4,12 +4,8 @@ import com.example.util.Database;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
-import javafx.scene.chart.XYChart;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 
 import java.sql.Connection;
@@ -21,7 +17,14 @@ import java.sql.Statement;
 public class StatisticController {
 
     @FXML
-    private BarChart<Number, String> statisticsBarChart;
+    private TextField numOfCompletedRequestsTF;
+
+    @FXML
+    private TextField avgTimeTF;
+    @FXML
+    private TextField totalCostTF;
+//    @FXML
+//    private BarChart<Number, String> statisticsBarChart;
 
     @FXML
     private PieChart faultPieChart;
@@ -35,44 +38,33 @@ public class StatisticController {
     }
 
     private void setupCharts() {
-        ((CategoryAxis) statisticsBarChart.getYAxis()).setTickLabelRotation(0);
-
+//        ((CategoryAxis) statisticsBarChart.getYAxis()).setTickLabelRotation(0);
         faultPieChart.setTitle("Распределение типов неисправностей");
     }
 
     private void updateCharts() {
-        updateBarChart();
+        updateStatsFields();
         updatePieChart();
     }
 
-    private void updateBarChart() {
-        XYChart.Series<Number, String> series = new XYChart.Series<>();
-        series.setName("Статистика");
+    private void updateStatsFields() {
 
         int completedRequestsCount = 0;
+        double avgTime = 0;
+        double totalCost = 0;
+
         try {
             completedRequestsCount = Integer.parseInt(database.singleValueQuery("SELECT COUNT(*) FROM reports"));
-        } catch (NumberFormatException | NullPointerException e) {
-            System.out.println("Ошибка при получении количества выполненных заявок");
-        }
-
-        double avgTime = 0;
-        try {
             avgTime = Double.parseDouble(database.singleValueQuery("SELECT AVG(time) FROM reports"));
+            totalCost = Double.parseDouble(database.singleValueQuery("SELECT SUM(cost) FROM reports"));
         } catch (NumberFormatException | NullPointerException e) {
-            System.out.println("Ошибка при получении среднего времени выполнения заявок");
+            System.out.println("Ошибка при получении данных");
         }
 
-        series.getData().add(new XYChart.Data<>(completedRequestsCount, "Количество выполненных заявок"));
-        series.getData().add(new XYChart.Data<>(avgTime, "Среднее время выполнения заявки, дн."));
 
-        statisticsBarChart.setData(FXCollections.observableArrayList(series));
-
-        // Установить цвета и ширину для столбцов
-        for (XYChart.Data<Number, String> data : series.getData()) {
-            data.getNode().setStyle("-fx-bar-fill: " + (data.getYValue().equals("Количество выполненных заявок") ? "#1f77b4;" : "#ff7f0e;") +
-                    "-fx-bar-width: 10;"); // Устанавливаем ширину столбцов
-        }
+        numOfCompletedRequestsTF.setText(String.valueOf(completedRequestsCount));
+        avgTimeTF.setText(String.format("%.2f", avgTime));
+        totalCostTF.setText(String.format("%.2f", totalCost));
     }
 
     private void updatePieChart() {
@@ -103,6 +95,11 @@ public class StatisticController {
         // Установить случайные цвета для каждого сегмента круговой диаграммы
         for (PieChart.Data data : pieChartData) {
             data.getNode().setStyle("-fx-pie-color: " + generateRandomColor() + ";");
+        }
+
+        // Добавить количество в подписи к сегментам
+        for (PieChart.Data data : faultPieChart.getData()) {
+            data.nameProperty().set(data.getName() + " (" + (int) data.getPieValue() + ")");
         }
     }
 
