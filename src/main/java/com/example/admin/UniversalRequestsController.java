@@ -283,6 +283,7 @@ public class UniversalRequestsController implements Initializable {
         }
     }
 
+
     @FXML
     public void clearFilters(ActionEvent event) {
         // Очистка выбора с чекбоксов состояний
