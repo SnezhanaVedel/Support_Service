@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane prefHeight="2500.0" prefWidth="700.0" stylesheets="/styles.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+   <center>
+      <SplitPane dividerPositions="0.5" minHeight="200.0" minWidth="200.0" BorderPane.alignment="CENTER">
+         <items>
+            <BorderPane prefHeight="200.0" prefWidth="200.0">
+               <center>
+                  <ListView fx:id="repairRequestListView" focusTraversable="false" prefHeight="200.0" prefWidth="200.0" />
+               </center>
+               <bottom>
+                  <Button fx:id="refreshListBtn" mnemonicParsing="false" onAction="#onActionRefresh" prefHeight="35.0" prefWidth="130.0" text="Обновить список" BorderPane.alignment="CENTER">
+                     <BorderPane.margin>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                     </BorderPane.margin>
+                  </Button>
+               </bottom>
+            </BorderPane>
+            <BorderPane fx:id="moreInfoPane">
+               <center>
+                  <ScrollPane fx:id="moreInfoScrollPane" fitToWidth="true" focusTraversable="false" prefHeight="200.0" prefWidth="200.0">
+                     <content>
+                        <VBox fx:id="infoVBox" spacing="20.0">
+                           <children>
+                              <Label fx:id="requestNumberLabel" styleClass="roboto-text" text="Заявка №123456">
+                                 <font>
+                                    <Font name="Arial Bold" size="18.0" />
+                                 </font>
+                              </Label>
+                              <Separator prefWidth="200.0" />
+                              <Label text="Серийный номер">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="serialNumField" editable="false" maxWidth="300.0" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Название оборудования">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="equipNameField" editable="false" maxWidth="300.0" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Тип оборудования">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="equipTypeField" editable="false" maxWidth="300.0" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Состояние">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <ChoiceBox fx:id="conditionChoiceBox" disable="true" prefWidth="150.0" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Детали">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextArea fx:id="detalsTextArea" editable="false" maxWidth="300.0" prefHeight="100.0" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Местоположение">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="locationField" editable="false" maxWidth="300.0" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Описание проблемы">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextArea fx:id="problemDescTextArea" editable="false" maxWidth="300.0" prefHeight="100.0" wrapText="true" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Комментарии к заявке">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextArea fx:id="commentsTextArea" editable="false" maxWidth="300.0" prefHeight="100.0" wrapText="true" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Статус">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <ChoiceBox fx:id="stateChoice" disable="true" prefWidth="150.0" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Дата начала">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="dateStartField" editable="false" maxWidth="300.0" />
+                           </children>
+                           <padding>
+                              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                           </padding>
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+               </center>
+               <bottom>
+                  <HBox alignment="CENTER" prefWidth="200.0" spacing="20.0" BorderPane.alignment="CENTER">
+                     <BorderPane.margin>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                     </BorderPane.margin>
+                     <children>
+                        <Button fx:id="createOrCheckReportBtn" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#onActionCreateOrCheckReport" prefHeight="35.0" prefWidth="150.0" text="Посмотреть отчёт">
+                           <padding>
+                              <Insets left="20.0" right="20.0" />
+                           </padding>
+                        </Button>
+                     </children>
+                  </HBox>
+               </bottom>
+            </BorderPane>
+         </items>
+      </SplitPane>
+   </center>
+   <left>
+      <VBox prefHeight="200.0" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="Фильтры" textFill="#5b5b5b">
+               <font>
+                  <Font name="Arial Bold" size="18.0" />
+               </font></Label>
+            <Label text="Статус заявки">
+               <font>
+                  <Font name="Arial" size="14.0" />
+               </font>
+               <padding>
+                  <Insets top="10.0" />
+               </padding>
+            </Label>
+            <VBox fx:id="statesVBox" prefWidth="100.0" spacing="10.0">
+               <children>
+                  <CheckBox mnemonicParsing="false" text="В работе" />
+                  <CheckBox mnemonicParsing="false" text="В ожидании" />
+                  <CheckBox mnemonicParsing="false" text="Выполнено" />
+               </children>
+            </VBox>
+            <Separator prefWidth="200.0" />
+            <Label text="Дата создания заявки">
+               <font>
+                  <Font name="Arial" size="14.0" />
+               </font>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </Label>
+            <TextField fx:id="dateFilterTF" />
+            <Separator prefWidth="200.0" />
+            <Label text="Номер заявки">
+               <font>
+                  <Font name="Arial" size="14.0" />
+               </font>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </Label>
+            <TextField fx:id="idFilterTF" />
+            <Separator prefWidth="200.0" />
+            <Button fx:id="applyFiltersBtn" mnemonicParsing="false" onAction="#applyFilters" prefHeight="35.0" prefWidth="150.0" text="Применить">
+               <padding>
+                  <Insets left="20.0" right="20.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </Button>
+            <Button fx:id="clearFiltersBtn" mnemonicParsing="false" onAction="#clearFilters" prefHeight="35.0" prefWidth="150.0" text="Очистить фильтры">
+               <padding>
+                  <Insets left="20.0" right="20.0" />
+               </padding>
+            </Button>
+         </children>
+
+         <padding>
+            <Insets left="20.0" right="20.0" top="20.0" />
+         </padding>
+      </VBox>
+   </left>
+</BorderPane>

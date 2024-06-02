@@ -1,5 +1,7 @@
-package com.example.controller;
+package com.example.admin;
 
+import com.example.controller.ListItemController;
+import com.example.controller.MainViewController;
 import com.example.util.Database;
 import com.example.util.MyAlert;
 import com.example.util.Request;
@@ -22,7 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class UniversalRequestsTabController implements Initializable {
+public class UniversalRequestsController implements Initializable {
     public VBox statesVBox;
     public VBox priorityVBox;
     public TextField dateFilterTF;
@@ -82,7 +84,7 @@ public class UniversalRequestsTabController implements Initializable {
     private boolean filterApplied = false;
     private String query  = null;
 
-    public UniversalRequestsTabController(String role) {
+    public UniversalRequestsController(String role) {
         this.role = role;
     }
 

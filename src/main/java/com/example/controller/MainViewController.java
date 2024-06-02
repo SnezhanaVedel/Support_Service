@@ -1,5 +1,7 @@
 package com.example.controller;
 
+import com.example.admin.UniversalRequestsController;
+import com.example.user.UserRequestsController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -29,11 +31,11 @@ public class MainViewController implements Initializable {
 
         if (role.equals("user")) {
             addTab("Создать заявку", "/view/user/AddRequestTab.fxml", null);
-            addTab("Мои заявки", "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("user"));
+            addTab("Мои заявки", "/view/user/UserRequests.fxml", new UserRequestsController("user"));
 
         } else if (role.equals("admin")) {
-            addTab("Новые заявки",  "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("admin_new"));
-            addTab("Все заявки",    "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("admin"));
+            addTab("Новые заявки", "/view/admin/UniversalRequests.fxml", new UniversalRequestsController("admin_new"));
+            addTab("Все заявки", "/view/admin/UniversalRequests.fxml", new UniversalRequestsController("admin"));
             addTab("Пользователи", "/view/admin/UniversalTableTab.fxml", new UniversalTableTabController("members"));
             addTab("Оборудование", "/view/admin/UniversalTableTab.fxml", new UniversalTableTabController("equipment"));
             addTab("Заказ запчастей", "/view/admin/UniversalTableTab.fxml", new UniversalTableTabController("orders"));
