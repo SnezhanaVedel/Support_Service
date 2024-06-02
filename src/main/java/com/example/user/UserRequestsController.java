@@ -5,7 +5,7 @@ import com.example.controller.MainViewController;
 import com.example.util.Database;
 import com.example.util.MyAlert;
 import com.example.util.Request;
-import com.example.util.UniversalAddDialog;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,6 +16,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import org.postgresql.PGNotification;
 
 import java.io.IOException;
 import java.net.URL;
@@ -67,7 +68,9 @@ public class UserRequestsController implements Initializable {
 
     private LinkedHashMap<Integer, Request> requestMap;
     private boolean filterApplied = false;
-    private String query  = null;
+    private String query = null;
+
+    private Thread notificationThread;
 
     public UserRequestsController(String role) {
         this.role = role;
@@ -78,16 +81,15 @@ public class UserRequestsController implements Initializable {
         database = Database.getInstance();
         requestMap = new LinkedHashMap<>();
 
-        moreInfoPane.setVisible(false);
-        createOrCheckReportBtn.setVisible(false);
+        database.listenForNotifications("request_created");
+        database.listenForNotifications("request_updated");
 
-        query = getQueryForRole();
+        startNotificationListener();
+
         loadRepairRequests();
-        //TODO: убрать статус ЗАКРЫТА в остальных частях кода
 
         stateChoice.getItems().addAll("В работе", "Выполнено", "В ожидании");
-        //TODO: перечень состояний возможно поменять
-        conditionChoiceBox.getItems().addAll("Исправно","Не исправно","Требуются запчасти");
+        conditionChoiceBox.getItems().addAll("Исправно", "Не исправно", "Требуются запчасти");
 
         repairRequestListView.setOnMouseClicked(event -> {
             int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
@@ -100,14 +102,48 @@ public class UserRequestsController implements Initializable {
         });
     }
 
+    private void startNotificationListener() {
+        notificationThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                PGNotification[] notifications = database.getNotifications();
+                if (notifications != null) {
+                    for (PGNotification notification : notifications) {
+                        if ("request_created".equals(notification.getName()) || "request_updated".equals(notification.getName())) {
+//                            Platform.runLater(this::loadRepairRequests);
+//                            Platform.runLater(this::showMoreInfo(currentRequestNumber));
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    loadRepairRequests();
+                                    showMoreInfo(currentRequestNumber);
+                                }
+                            });
 
-     @FXML
+                        }
+                    }
+                }
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+        notificationThread.setDaemon(true);
+        notificationThread.start();
+    }
+
+    public void stop() {
+        if (notificationThread != null && notificationThread.isAlive()) {
+            notificationThread.interrupt();
+        }
+    }
+
+    @FXML
     public void applyFilters() {
         repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
 
-        StringBuilder queryBuilder = new StringBuilder("SELECT id FROM requests " +
-                "WHERE status != 'Новая' AND ");
-
+        StringBuilder queryBuilder = new StringBuilder("SELECT id FROM requests WHERE status != 'Новая' AND ");
         List<String> conditions = new ArrayList<>();
 
         // Фильтры по состояниям (используем оператор OR между выбранными состояниями)
@@ -152,11 +188,10 @@ public class UserRequestsController implements Initializable {
 
         queryBuilder.append(" ORDER BY id");
 
-         query = queryBuilder.toString();
-         System.out.println(query);
-         loadRepairRequests();
-         MyAlert.showInfoAlert("Фильтры успешно применены");
-
+        query = queryBuilder.toString();
+        System.out.println(query);
+        loadRepairRequests();
+        MyAlert.showInfoAlert("Фильтры успешно применены");
     }
 
     private boolean isRequestIdInFilteredResults(int requestId) {
@@ -168,7 +203,6 @@ public class UserRequestsController implements Initializable {
         }
         return false;
     }
-
 
     public void loadRepairRequests() {
         repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
@@ -196,35 +230,31 @@ public class UserRequestsController implements Initializable {
             }
 
             // Вот код, который вы хотите добавить, чтобы установить фабрику ячеек для repairRequestListView
-            repairRequestListView.setCellFactory(param -> {
-                return new ListCell<String>() {
-                    @Override
-                    protected void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
+            repairRequestListView.setCellFactory(param -> new ListCell<String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
 
-                        if (item == null || empty) {
+                    if (item == null || empty) {
+                        setGraphic(null);
+                    } else {
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ListItem.fxml"));
+                        try {
+                            Parent root = loader.load();
+                            ListItemController controller = loader.getController();
+                            controller.setRequestNumber(Integer.parseInt(item));
+                            setGraphic(root);
+                        } catch (IOException e) {
+                            e.printStackTrace();
                             setGraphic(null);
-                        } else {
-                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ListItem.fxml"));
-                            try {
-                                Parent root = loader.load();
-                                ListItemController controller = loader.getController();
-                                controller.setRequestNumber(Integer.parseInt(item));
-                                setGraphic(root);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                setGraphic(null);
-                            }
                         }
                     }
-                };
+                }
             });
-
         } else {
             MyAlert.showErrorAlert("Ошибка: роль " + role + " не найдена");
         }
     }
-
 
     private String getQueryForRole() {
         if (role.equals("user")) {
@@ -253,21 +283,12 @@ public class UserRequestsController implements Initializable {
         loadRepairRequests();
     }
 
-
-//    @FXML
-//    public void clearFilters() {
-//        idFilterTF.clear();
-//        query = null;
-//        loadRepairRequests();
-//    }
-
     @FXML
     public void onActionRefresh() {
         loadRepairRequests();
     }
 
-
-//TODO: поля поменять для отчета
+    @FXML
     public void onActionCreateOrCheckReport() {
         ArrayList<String> reportValues = database.executeQueryAndGetColumnValues(
                 "SELECT * FROM reports WHERE request_id = " + currentRequestNumber);
@@ -292,12 +313,7 @@ public class UserRequestsController implements Initializable {
 
         requestNumberLabel.setText("Заявка №" + requestId);
         equipTypeField.setText(request.getEquip_type());
-//        descriptionTextArea.setText(request.getProblem_desc());
         commentsTextArea.setText(request.getRequest_comments());
-//        registerDateTF.setText(request.getDate_start());
-
-        //TODO: отдельные для пользователей
-
         serialNumField.setText(request.getSerial_num());
         equipNameField.setText(request.getEquip_name());
         conditionChoiceBox.setValue(request.getCondition());
@@ -311,7 +327,6 @@ public class UserRequestsController implements Initializable {
             stateChoice.setValue(request.getStatus());
         }
 
-        // Отображение кнопки для проверки отчета в зависимости от состояния
         String currentState = request.getStatus();
         if (currentState.equals("Выполнено")) {
             createOrCheckReportBtn.setVisible(true);
