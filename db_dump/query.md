@@ -52,3 +52,32 @@ resource_name VARCHAR(255),
 cost NUMERIC
 );
 
+
+
+-- Функция для уведомления о создании заявки
+CREATE OR REPLACE FUNCTION notify_request_created()
+RETURNS trigger AS $$
+BEGIN
+PERFORM pg_notify('request_created', NEW.id::text);
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Триггер для уведомления о создании заявки
+CREATE TRIGGER trigger_request_created
+AFTER INSERT ON requests
+FOR EACH ROW EXECUTE FUNCTION notify_request_created();
+
+-- Функция для уведомления об обновлении заявки
+CREATE OR REPLACE FUNCTION notify_request_updated()
+RETURNS trigger AS $$
+BEGIN
+PERFORM pg_notify('request_updated', NEW.id::text);
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Триггер для уведомления об обновлении заявки
+CREATE TRIGGER trigger_request_updated
+AFTER UPDATE ON requests
+FOR EACH ROW EXECUTE FUNCTION notify_request_updated();
