@@ -23,8 +23,6 @@ public class StatisticController {
     private TextField avgTimeTF;
     @FXML
     private TextField totalCostTF;
-//    @FXML
-//    private BarChart<Number, String> statisticsBarChart;
 
     @FXML
     private PieChart faultPieChart;

@@ -91,8 +91,8 @@ public class AdminRequestsController implements Initializable {
 
         query = getQueryForRole();
 
-        database.listenForNotifications("request_created_admin");
-        database.listenForNotifications("request_updated_admin");
+        database.listenForNotifications("request_created");
+        database.listenForNotifications("request_updated");
 
         startNotificationListener();
 
@@ -119,7 +119,7 @@ public class AdminRequestsController implements Initializable {
                 PGNotification[] notifications = database.getNotifications();
                 if (notifications != null) {
                     for (PGNotification notification : notifications) {
-                        if ("request_created_admin".equals(notification.getName()) || "request_updated_admin".equals(notification.getName())) {
+                        if ("request_created".equals(notification.getName()) || "request_updated".equals(notification.getName())) {
                             Platform.runLater(() -> {
                                 loadRepairRequests();
                                 if (moreInfoPane.isVisible()) {
