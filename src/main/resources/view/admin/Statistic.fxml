@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<HBox alignment="CENTER" fillHeight="false" spacing="100.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.admin.StatisticController">
+<HBox alignment="CENTER" fillHeight="false" spacing="100.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.admin.StatisticController">
     <children>
         <GridPane alignment="CENTER" hgap="20.0" prefHeight="160.0" prefWidth="434.0" vgap="20.0">
             <columnConstraints>

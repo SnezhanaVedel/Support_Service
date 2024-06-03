@@ -1,7 +1,6 @@
-package com.example.admin;
+package com.example.controller.admin;
 
 import com.example.controller.ListItemController;
-import com.example.controller.MainViewController;
 import com.example.util.Database;
 import com.example.util.MyAlert;
 import com.example.util.Request;

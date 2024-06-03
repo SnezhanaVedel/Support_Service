@@ -1,8 +1,9 @@
 package com.example.controller;
 
-import com.example.admin.AdminRequestsController;
-import com.example.admin.NewAdminRequestsController;
-import com.example.user.UserRequestsController;
+import com.example.controller.admin.AdminRequestsController;
+import com.example.controller.admin.NewAdminRequestsController;
+import com.example.controller.admin.UniversalTableTabController;
+import com.example.controller.user.UserRequestsController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;

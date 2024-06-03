@@ -1,4 +1,4 @@
-package com.example.controller;
+package com.example.controller.admin;
 
 import com.example.controller.dialogs.DialogAddMembersController;
 import com.example.util.Database;

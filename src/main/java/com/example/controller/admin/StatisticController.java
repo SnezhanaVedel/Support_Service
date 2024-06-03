@@ -1,4 +1,4 @@
-package com.example.admin;
+package com.example.controller.admin;
 
 import com.example.util.Database;
 import javafx.collections.FXCollections;

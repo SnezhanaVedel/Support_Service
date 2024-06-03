@@ -1,10 +1,10 @@
-package com.example.user;
+package com.example.controller.admin;
 
 import com.example.controller.ListItemController;
-import com.example.controller.MainViewController;
 import com.example.util.Database;
 import com.example.util.MyAlert;
 import com.example.util.Request;
+import com.example.util.UniversalAddDialog;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -25,8 +25,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class UserRequestsController implements Initializable {
+public class AdminRequestsController implements Initializable {
     public VBox statesVBox;
+    public VBox priorityVBox;
     public TextField dateFilterTF;
     public TextField idFilterTF;
     @FXML
@@ -34,6 +35,8 @@ public class UserRequestsController implements Initializable {
     public Label requestNumberLabel;
     public TextField equipTypeField;
     public TextArea descriptionTextArea;
+    public Label clientNameLabel;
+    public Label clientPhoneLabel;
     public TextField equipSerialField;
     public TextArea commentsTextArea;
     public ScrollPane moreInfoScrollPane;
@@ -41,7 +44,9 @@ public class UserRequestsController implements Initializable {
     public VBox infoVBox;
     public VBox stateVBox;
     public ChoiceBox<String> stateChoice;
+    public ChoiceBox<String> priorityChoice;
     public TextField registerDateTF;
+    public TextField finishDateTF;
     public Button refreshListBtn;
     public Button createOrCheckReportBtn;
 
@@ -61,28 +66,33 @@ public class UserRequestsController implements Initializable {
     private ChoiceBox<String> statusChoice;
     @FXML
     private TextField dateStartField;
+    @FXML
+    private TextField clientNameField;
+    @FXML
+    private TextField clientPhoneField;
+    @FXML
+    private TextField emailField;
 
     private Database database;
     private int currentRequestNumber = -1;
-    private String role;
 
     private LinkedHashMap<Integer, Request> requestMap;
     private boolean filterApplied = false;
     private String query = null;
-
     private Thread notificationThread;
-
-    public UserRequestsController(String role) {
-        this.role = role;
-    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         database = Database.getInstance();
         requestMap = new LinkedHashMap<>();
 
-        database.listenForNotifications("request_created");
-        database.listenForNotifications("request_updated");
+        moreInfoPane.setVisible(false);
+        createOrCheckReportBtn.setVisible(false);
+
+        query = getQueryForRole();
+
+        database.listenForNotifications("request_created_admin");
+        database.listenForNotifications("request_updated_admin");
 
         startNotificationListener();
 
@@ -102,21 +112,20 @@ public class UserRequestsController implements Initializable {
         });
     }
 
-    private void startNotificationListener() {
+    public void startNotificationListener() {
+        stopNotificationListener(); // Остановить предыдущий поток, если он есть
         notificationThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 PGNotification[] notifications = database.getNotifications();
                 if (notifications != null) {
                     for (PGNotification notification : notifications) {
-                        if ("request_created".equals(notification.getName()) || "request_updated".equals(notification.getName())) {
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    loadRepairRequests();
+                        if ("request_created_admin".equals(notification.getName()) || "request_updated_admin".equals(notification.getName())) {
+                            Platform.runLater(() -> {
+                                loadRepairRequests();
+                                if (moreInfoPane.isVisible()) {
                                     showMoreInfo(currentRequestNumber);
                                 }
                             });
-
                         }
                     }
                 }
@@ -131,7 +140,7 @@ public class UserRequestsController implements Initializable {
         notificationThread.start();
     }
 
-    public void stop() {
+    public void stopNotificationListener() {
         if (notificationThread != null && notificationThread.isAlive()) {
             notificationThread.interrupt();
         }
@@ -139,12 +148,11 @@ public class UserRequestsController implements Initializable {
 
     @FXML
     public void applyFilters() {
-        repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
+        repairRequestListView.getItems().clear();
 
         StringBuilder queryBuilder = new StringBuilder("SELECT id FROM requests WHERE status != 'Новая' AND ");
         List<String> conditions = new ArrayList<>();
 
-        // Фильтры по состояниям (используем оператор OR между выбранными состояниями)
         List<String> stateConditions = new ArrayList<>();
         for (Node node : statesVBox.getChildren()) {
             if (node instanceof CheckBox) {
@@ -158,13 +166,11 @@ public class UserRequestsController implements Initializable {
             conditions.add("(" + String.join(" OR ", stateConditions) + ")");
         }
 
-        // Фильтр по дате создания заявки
         String selectedDate = dateFilterTF.getText();
         if (selectedDate != null && !selectedDate.trim().isEmpty()) {
             conditions.add("date_start = '" + selectedDate + "'");
         }
 
-        // Фильтр по номеру заявки
         String requestNumber = idFilterTF.getText().trim();
         if (!requestNumber.isEmpty()) {
             try {
@@ -177,11 +183,10 @@ public class UserRequestsController implements Initializable {
             }
         }
 
-        // Строим окончательное условие WHERE
         if (!conditions.isEmpty()) {
             queryBuilder.append(String.join(" AND ", conditions));
         } else {
-            queryBuilder.append("1=1"); // Если фильтры не выбраны, выбираем все заявки
+            queryBuilder.append("1=1");
         }
 
         queryBuilder.append(" ORDER BY id");
@@ -203,7 +208,7 @@ public class UserRequestsController implements Initializable {
     }
 
     public void loadRepairRequests() {
-        repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
+        repairRequestListView.getItems().clear();
         requestMap.clear();
 
         if (query == null) {
@@ -222,12 +227,10 @@ public class UserRequestsController implements Initializable {
                 applyFilters();
             }
 
-            // Проверяем, видима ли подробная информация после применения фильтров
             if (!isRequestIdInFilteredResults(currentRequestNumber)) {
                 moreInfoPane.setVisible(false);
             }
 
-            // Вот код, который вы хотите добавить, чтобы установить фабрику ячеек для repairRequestListView
             repairRequestListView.setCellFactory(param -> new ListCell<String>() {
                 @Override
                 protected void updateItem(String item, boolean empty) {
@@ -250,31 +253,22 @@ public class UserRequestsController implements Initializable {
                 }
             });
         } else {
-            MyAlert.showErrorAlert("Ошибка: роль " + role + " не найдена");
+            MyAlert.showErrorAlert("Ошибка: роль admin не найдена");
         }
     }
 
     private String getQueryForRole() {
-        if (role.equals("user")) {
-            return "SELECT r.id " +
-                    "FROM requests r " +
-                    "WHERE r.member_id = " + MainViewController.userID + " " +
-                    "ORDER BY r.id DESC";
-        } else {
-            return null;
-        }
+        return "SELECT id FROM requests WHERE status != 'Новая' ORDER BY id";
     }
 
     @FXML
     public void clearFilters(ActionEvent event) {
-        // Очистка выбора с чекбоксов состояний
         for (Node node : statesVBox.getChildren()) {
             if (node instanceof CheckBox) {
                 ((CheckBox) node).setSelected(false);
             }
         }
 
-        // Очистка полей под дату и номер заявки
         dateFilterTF.clear();
         idFilterTF.clear();
         query = null;
@@ -287,22 +281,46 @@ public class UserRequestsController implements Initializable {
     }
 
     @FXML
-    public void onActionCreateOrCheckReport() {
-        ArrayList<String> reportValues = database.executeQueryAndGetColumnValues(
-                "SELECT * FROM reports WHERE request_id = " + currentRequestNumber);
+    public void onActionSave() {
+        String stateValue = stateChoice.getValue();
 
-        if (reportValues != null && reportValues.size() > 0) {
-            String report =
-                    "Номер заявки: " + reportValues.get(0) + "\n\n" +
-                            "Тип ремонта: " + reportValues.get(1) + "\n\n" +
-                            "Время выполнения, дней: " + reportValues.get(2) + "\n\n" +
-                            "Стоимость: " + reportValues.get(3) + "\n\n" +
-                            "Ресурсы: " + reportValues.get(4) + "\n\n" +
-                            "Причина неисправности: " + reportValues.get(5) + "\n\n" +
-                            "Оказанная помощь: " + reportValues.get(6);
-            MyAlert.showInfoAlert(report);
+        requestMap.get(currentRequestNumber).updateRequestInDB(
+                equipTypeField.getText(),
+                problemDescTextArea.getText(),
+                commentsTextArea.getText(),
+                stateChoice.getValue(),
+                equipNameField.getText(),
+                conditionChoiceBox.getValue(),
+                detalsTextArea.getText(),
+                locationField.getText()
+        );
+
+        loadRepairRequests();
+        showMoreInfo(currentRequestNumber);
+    }
+
+    @FXML
+    public void onActionCreateOrCheckReport() {
+        if (createOrCheckReportBtn.getText().equals("Посмотреть отчёт")) {
+            ArrayList<String> reportValues = database.executeQueryAndGetColumnValues(
+                    "SELECT * FROM reports WHERE request_id = " + currentRequestNumber);
+
+            if (reportValues != null && reportValues.size() > 0) {
+                String report =
+                        "Номер заявки: " + reportValues.get(0) + "\n\n" +
+                                "Тип ремонта: " + reportValues.get(1) + "\n\n" +
+                                "Время выполнения, дней: " + reportValues.get(2) + "\n\n" +
+                                "Стоимость: " + reportValues.get(3) + "\n\n" +
+                                "Ресурсы: " + reportValues.get(4) + "\n\n" +
+                                "Причина неисправности: " + reportValues.get(5) + "\n\n" +
+                                "Оказанная помощь: " + reportValues.get(6);
+                MyAlert.showInfoAlert(report);
+            } else {
+                MyAlert.showInfoAlert("Отчёт для заявки №" + currentRequestNumber + " отсутствует");
+            }
         } else {
-            MyAlert.showInfoAlert("Отчёт для заявки №" + currentRequestNumber + " отсутствует");
+            new UniversalAddDialog("reports", database.getAllTableColumnNames("reports"));
+            showMoreInfo(currentRequestNumber);
         }
     }
 
@@ -320,13 +338,19 @@ public class UserRequestsController implements Initializable {
         problemDescTextArea.setText(request.getProblem_desc());
         stateChoice.setValue(request.getStatus());
         dateStartField.setText(request.getDate_start());
+        clientNameField.setText(request.getClient_name());
+        clientPhoneField.setText(request.getClient_phone());
+        emailField.setText(request.getEmail());
 
-        if (!role.equals("admin_new")) {
-            stateChoice.setValue(request.getStatus());
-        }
+        if (request.getStatus().equals("Выполнено")) {
+            ArrayList<String> reportValues = database.executeQueryAndGetColumnValues(
+                    "SELECT * FROM reports WHERE request_id = " + currentRequestNumber);
 
-        String currentState = request.getStatus();
-        if (currentState.equals("Выполнено")) {
+            if (reportValues != null && reportValues.size() > 0) {
+                createOrCheckReportBtn.setText("Посмотреть отчёт");
+            } else {
+                createOrCheckReportBtn.setText("Создать отчёт");
+            }
             createOrCheckReportBtn.setVisible(true);
         } else {
             createOrCheckReportBtn.setVisible(false);

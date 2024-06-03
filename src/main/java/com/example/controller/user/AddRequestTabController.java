@@ -1,4 +1,4 @@
-package com.example.user;
+package com.example.controller.user;
 
 import com.example.controller.MainViewController;
 import com.example.util.Database;

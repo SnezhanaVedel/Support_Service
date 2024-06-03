@@ -1,6 +1,6 @@
 package com.example.controller.dialogs;
 
-import com.example.controller.UniversalTableTabController;
+import com.example.controller.admin.UniversalTableTabController;
 import com.example.util.Database;
 import com.example.util.MyAlert;
 import javafx.collections.ObservableList;
