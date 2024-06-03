@@ -6,6 +6,7 @@ import com.example.util.Database;
 import com.example.util.MyAlert;
 import com.example.util.Request;
 import com.example.util.UniversalAddDialog;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,6 +17,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import org.postgresql.PGNotification;
 
 import java.io.IOException;
 import java.net.URL;
@@ -83,6 +85,8 @@ public class UniversalRequestsController implements Initializable {
     private LinkedHashMap<Integer, Request> requestMap;
     private boolean filterApplied = false;
     private String query  = null;
+    private Thread notificationThread;
+
 
     public UniversalRequestsController(String role) {
         this.role = role;
@@ -97,6 +101,12 @@ public class UniversalRequestsController implements Initializable {
         createOrCheckReportBtn.setVisible(false);
 
         query = getQueryForRole();
+
+        database.listenForNotifications("request_created");
+        database.listenForNotifications("request_updated");
+
+        startNotificationListener();
+
         loadRepairRequests();
         //TODO: убрать статус ЗАКРЫТА в остальных частях кода
 
@@ -115,33 +125,43 @@ public class UniversalRequestsController implements Initializable {
         });
     }
 
+    private void startNotificationListener() {
+        notificationThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                PGNotification[] notifications = database.getNotifications();
+                if (notifications != null) {
+                    for (PGNotification notification : notifications) {
+                        if ("request_created".equals(notification.getName()) || "request_updated".equals(notification.getName())) {
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    loadRepairRequests();
+                                    showMoreInfo(currentRequestNumber);
+                                }
+                            });
 
-//    @FXML
-//    public void applyFilters() {
-//        if (!idFilterTF.getText().trim().equals("")) {
-//            int requestId = Integer.parseInt(idFilterTF.getText());
-//
-//            if (requestMap.containsKey(requestId)) {
-//                repairRequestListView.getItems().clear();
-//                repairRequestListView.getItems().add(String.valueOf(requestId));
-//                filterApplied = true;
-//                showMoreInfo(requestId);
-//
-//            } else {
-//                filterApplied = false;
-//                moreInfoPane.setVisible(false);
-//                clearFilters();
-//                MyAlert.showErrorAlert(String.format("Заявка с номером %d не найдена", requestId));
-//            }
-//        } else {
-//            filterApplied = false;
-//        }
-//    }
+                        }
+                    }
+                }
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+        notificationThread.setDaemon(true);
+        notificationThread.start();
+    }
 
-    //TODO: фильтры
+    public void stop() {
+        if (notificationThread != null && notificationThread.isAlive()) {
+            notificationThread.interrupt();
+        }
+    }
 
 
-     @FXML
+    @FXML
     public void applyFilters() {
         repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
 
@@ -192,10 +212,10 @@ public class UniversalRequestsController implements Initializable {
 
         queryBuilder.append(" ORDER BY id");
 
-         query = queryBuilder.toString();
-         System.out.println(query);
-         loadRepairRequests();
-         MyAlert.showInfoAlert("Фильтры успешно применены");
+        query = queryBuilder.toString();
+        System.out.println(query);
+        loadRepairRequests();
+        MyAlert.showInfoAlert("Фильтры успешно применены");
 
     }
 
@@ -343,7 +363,7 @@ public class UniversalRequestsController implements Initializable {
         }
     }
 
-//TODO: поля поменять для отчета
+    //TODO: поля поменять для отчета
     public void onActionCreateOrCheckReport() {
 
         if (createOrCheckReportBtn.getText().equals("Посмотреть отчёт")) {

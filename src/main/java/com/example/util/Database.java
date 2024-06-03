@@ -5,6 +5,7 @@ import org.postgresql.PGNotification;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Database {
     private static Database instance;
@@ -16,6 +17,7 @@ public class Database {
     private PGConnection pgConnection;
     private Thread notificationThread;
     private volatile boolean listening = true;
+    private List<NotificationListener> listeners = new ArrayList<>();
 
     private Database() {
         try {
@@ -92,7 +94,9 @@ public class Database {
 
     private void handleNotification(PGNotification notification) {
         System.out.println("Received notification: " + notification.getParameter());
-        // Обработка уведомления
+        for (NotificationListener listener : listeners) {
+            listener.onNotification(notification.getName(), notification.getParameter());
+        }
     }
 
     public void stopNotificationListener() {
@@ -100,6 +104,14 @@ public class Database {
         if (notificationThread != null) {
             notificationThread.interrupt();
         }
+    }
+
+    public void addNotificationListener(NotificationListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeNotificationListener(NotificationListener listener) {
+        listeners.remove(listener);
     }
 
     public ResultSet getTable(String selectedTable, String orderBy) {
@@ -249,5 +261,9 @@ public class Database {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public interface NotificationListener {
+        void onNotification(String channel, String payload);
     }
 }
