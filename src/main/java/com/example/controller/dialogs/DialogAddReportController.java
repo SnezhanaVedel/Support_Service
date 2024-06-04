@@ -32,7 +32,7 @@ public class DialogAddReportController implements Initializable {
 
     public void onActionBottomAdd(ActionEvent actionEvent) {
         ObservableList<Node> list = valuesVbox.getChildren();
-        String sqlAdd = "INSERT INTO reports (request_id, resource_type, time, cost, resources, reason, help) VALUES (";
+        String sqlAdd = "INSERT INTO reports (request_id, repair_type, time, cost, resources, reason, help) VALUES (";
 
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i) instanceof TextField) {
