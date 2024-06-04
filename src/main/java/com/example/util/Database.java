@@ -3,13 +3,16 @@ package com.example.util;
 import org.postgresql.PGConnection;
 import org.postgresql.PGNotification;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Database {
     private static Database instance;
-    public static final String URL = "jdbc:postgresql://localhost:8888/postgres";
+    public static String URL;
     public static final String ROOT_LOGIN = "postgres";
     public static final String ROOT_PASS = "root";
     private Connection externalConnection = null;
@@ -18,6 +21,14 @@ public class Database {
     private Thread notificationThread;
     private volatile boolean listening = true;
     private List<NotificationListener> listeners = new ArrayList<>();
+
+    static {
+        try {
+            URL = new String(Files.readAllBytes(Paths.get("db_url.txt")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private Database() {
         try {
