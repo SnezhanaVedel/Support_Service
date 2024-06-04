@@ -54,5 +54,4 @@ public class ListItemController {
             e.printStackTrace();
         }
     }
-
 }

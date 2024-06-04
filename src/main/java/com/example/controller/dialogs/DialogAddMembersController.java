@@ -1,6 +1,6 @@
 package com.example.controller.dialogs;
 
-import com.example.controller.admin.UniversalTableTabController;
+import com.example.controller.admin.UniversalTableController;
 import com.example.util.Database;
 import com.example.util.MyAlert;
 import javafx.collections.ObservableList;
@@ -20,7 +20,6 @@ public class DialogAddMembersController implements Initializable {
     public VBox valuesVbox;
     public Button idBottomAdd;
     public ChoiceBox<String> roleChoice;
-
     public TextField nameTF;
     public TextField phoneTF;
     public TextField emailTF;
@@ -62,7 +61,7 @@ public class DialogAddMembersController implements Initializable {
         stage.close();
 
         // Обновляем таблицу в UsersTabController
-        UniversalTableTabController parentController = (UniversalTableTabController) stage.getUserData();
+        UniversalTableController parentController = (UniversalTableController) stage.getUserData();
         parentController.updateTable();
     }
 

@@ -18,15 +18,12 @@ public class StatisticController {
 
     @FXML
     private TextField numOfCompletedRequestsTF;
-
     @FXML
     private TextField avgTimeTF;
     @FXML
     private TextField totalCostTF;
-
     @FXML
     private PieChart faultPieChart;
-
     private Database database;
 
     public void initialize() {
@@ -36,7 +33,6 @@ public class StatisticController {
     }
 
     private void setupCharts() {
-//        ((CategoryAxis) statisticsBarChart.getYAxis()).setTickLabelRotation(0);
         faultPieChart.setTitle("Распределение типов неисправностей");
     }
 
@@ -46,7 +42,6 @@ public class StatisticController {
     }
 
     private void updateStatsFields() {
-
         int completedRequestsCount = 0;
         double avgTime = 0;
         double totalCost = 0;
@@ -58,7 +53,6 @@ public class StatisticController {
         } catch (NumberFormatException | NullPointerException e) {
             System.out.println("Ошибка при получении данных");
         }
-
 
         numOfCompletedRequestsTF.setText(String.valueOf(completedRequestsCount));
         avgTimeTF.setText(String.format("%.2f", avgTime));
@@ -107,7 +101,6 @@ public class StatisticController {
         int b = (int) (Math.random() * 256);
         return String.format("#%02x%02x%02x", r, g, b);
     }
-
     @FXML
     private void onRefresh() {
         updateCharts();

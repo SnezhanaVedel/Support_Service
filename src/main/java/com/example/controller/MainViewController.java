@@ -2,7 +2,7 @@ package com.example.controller;
 
 import com.example.controller.admin.AdminRequestsController;
 import com.example.controller.admin.NewAdminRequestsController;
-import com.example.controller.admin.UniversalTableTabController;
+import com.example.controller.admin.UniversalTableController;
 import com.example.controller.user.UserRequestsController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -31,14 +31,15 @@ public class MainViewController implements Initializable {
         mainPane.getTabs().clear();
 
         if (role.equals("user")) {
-            addTab("Создать заявку", "/view/user/AddRequestTab.fxml", null);
+            addTab("Создать заявку", "/view/user/AddRequest.fxml", null);
             addTab("Мои заявки", "/view/user/UserRequests.fxml", new UserRequestsController("user"));
+            addTab("Профиль", "/view/user/Profile.fxml", null);
         } else if (role.equals("admin")) {
             addTab("Новые заявки", "/view/admin/UniversalRequests.fxml", new NewAdminRequestsController());
             addTab("Все заявки", "/view/admin/UniversalRequests.fxml", new AdminRequestsController());
-            addTab("Пользователи", "/view/admin/UniversalTableTab.fxml", new UniversalTableTabController("members"));
-            addTab("Оборудование", "/view/admin/UniversalTableTab.fxml", new UniversalTableTabController("equipment"));
-            addTab("Заказ запчастей", "/view/admin/UniversalTableTab.fxml", new UniversalTableTabController("orders"));
+            addTab("Пользователи", "/view/admin/UniversalTableTab.fxml", new UniversalTableController("members"));
+            addTab("Оборудование", "/view/admin/UniversalTableTab.fxml", new UniversalTableController("equipment"));
+            addTab("Заказ запчастей", "/view/admin/UniversalTableTab.fxml", new UniversalTableController("orders"));
             addTab("Статистика", "/view/admin/Statistic.fxml", null);
         }
 
@@ -65,7 +66,7 @@ public class MainViewController implements Initializable {
     private void addTab(String title, String pathToFXML, Object controller) {
         Tab newRequestTab = new Tab(title);
         try {
-            newRequestTab.setStyle("-fx-font-family: Arial; -fx-font-size: 14;");
+            newRequestTab.setStyle("-fx-font-family: ROBOTO; -fx-font-size: 14;");
             if (!pathToFXML.equals("")) {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource(pathToFXML));
                 if (controller != null) {
@@ -80,5 +81,4 @@ public class MainViewController implements Initializable {
         }
         mainPane.getTabs().add(newRequestTab);
     }
-
 }

@@ -21,28 +21,28 @@
             <children>
                 <Label alignment="TOP_LEFT" text="Количество выполненных заявок">
                     <font>
-                        <Font name="Arial" size="16.0" />
+                        <Font name="Roboto" size="16.0" />
                     </font></Label>
                 <Label text="Среднее время выполнения заявки, дн." GridPane.rowIndex="1">
                     <font>
-                        <Font name="Arial" size="16.0" />
+                        <Font name="Roboto" size="16.0" />
                     </font></Label>
                 <TextField fx:id="numOfCompletedRequestsTF" editable="false" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1">
                     <font>
-                        <Font name="Arial" size="14.0" />
+                        <Font name="Roboto" size="14.0" />
                     </font></TextField>
                 <TextField fx:id="avgTimeTF" editable="false" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                     <font>
-                        <Font name="Arial" size="14.0" />
+                        <Font name="Roboto" size="14.0" />
                     </font></TextField>
             <Label layoutX="10.0" layoutY="80.0" text="Суммарные расходы, руб." GridPane.rowIndex="2">
                <font>
-                  <Font name="Arial" size="16.0" />
+                  <Font name="Roboto" size="16.0" />
                </font>
             </Label>
             <TextField fx:id="totalCostTF" editable="false" layoutX="250.0" layoutY="75.0" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <font>
-                  <Font name="Arial" size="14.0" />
+                  <Font name="Roboto" size="14.0" />
                </font>
             </TextField>
             </children>

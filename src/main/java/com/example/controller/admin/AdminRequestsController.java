@@ -13,11 +13,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.postgresql.PGNotification;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -75,11 +76,14 @@ public class AdminRequestsController implements Initializable {
 
     private Database database;
     private int currentRequestNumber = -1;
-
     private LinkedHashMap<Integer, Request> requestMap;
     private boolean filterApplied = false;
     private String query = null;
     private Thread notificationThread;
+
+    public int getCurrentRequestNumber() {
+        return currentRequestNumber;
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -95,7 +99,6 @@ public class AdminRequestsController implements Initializable {
         database.listenForNotifications("request_updated");
 
         startNotificationListener();
-
         loadRepairRequests();
 
         stateChoice.getItems().addAll("В работе", "Выполнено", "В ожидании");
@@ -268,7 +271,6 @@ public class AdminRequestsController implements Initializable {
                 ((CheckBox) node).setSelected(false);
             }
         }
-
         dateFilterTF.clear();
         idFilterTF.clear();
         query = null;
@@ -294,11 +296,9 @@ public class AdminRequestsController implements Initializable {
                 detalsTextArea.getText(),
                 locationField.getText()
         );
-
         loadRepairRequests();
         showMoreInfo(currentRequestNumber);
     }
-
     @FXML
     public void onActionCreateOrCheckReport() {
         if (createOrCheckReportBtn.getText().equals("Посмотреть отчёт")) {
@@ -319,7 +319,19 @@ public class AdminRequestsController implements Initializable {
                 MyAlert.showInfoAlert("Отчёт для заявки №" + currentRequestNumber + " отсутствует");
             }
         } else {
-            new UniversalAddDialog("reports", database.getAllTableColumnNames("reports"));
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/dialogs/DialogAddReport.fxml"));
+
+                // Передача текущего контроллера как userData
+                Stage stage = new Stage();
+                stage.setTitle("Добавление отчета");
+                stage.setScene(new Scene(loader.load()));
+                stage.setUserData(this); // передаем UniversalTableController
+
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             showMoreInfo(currentRequestNumber);
         }
     }

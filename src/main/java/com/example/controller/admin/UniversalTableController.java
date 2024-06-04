@@ -1,9 +1,7 @@
 package com.example.controller.admin;
 
-import com.example.controller.dialogs.DialogAddMembersController;
 import com.example.util.Database;
 import com.example.util.MyAlert;
-import com.example.util.UniversalAddDialog;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -27,14 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class UniversalTableTabController implements Initializable {
+public class UniversalTableController implements Initializable {
     public TableView<List<String>> tableView;
     private Database database;
     private String selectedTable;
     private List<String> columnNames;
     public Button addNewBtn;
 
-    public UniversalTableTabController(String table) {
+    public UniversalTableController(String table) {
         selectedTable = table;
     }
 
@@ -142,21 +140,22 @@ public class UniversalTableTabController implements Initializable {
         tableView.sort();
     }
 
-
-    // TODO: сделать провеку перед удалением
     public void onActionDelete() {
         int selectedIndex = tableView.getSelectionModel().getSelectedIndex();
         if (selectedIndex != -1) {
-            String columnSearch = ((List) tableView.getItems().get(selectedIndex)).get(0).toString();
-            String columnSearchName = ((TableColumn) tableView.getColumns().get(0)).getText();
-            tableView.getItems().remove(selectedIndex);
-            if (selectedTable.equals("equipment")){
-                database.deleteQuery(selectedTable, "serial_num", "'" + columnSearch + "'");
-            } else {
-                database.deleteQuery(selectedTable, columnSearchName, columnSearch);
+            boolean actionConfirmed = MyAlert.showWarningConfirmation("Удаление записи", "Удалить выбранную запись? Это действие нельзя будет отменить");
+            if (actionConfirmed) {
+                String columnSearch = ((List) tableView.getItems().get(selectedIndex)).get(0).toString();
+                String columnSearchName = ((TableColumn) tableView.getColumns().get(0)).getText();
+                tableView.getItems().remove(selectedIndex);
+                if (selectedTable.equals("equipment")) {
+                    database.deleteQuery(selectedTable, "serial_num", "'" + columnSearch + "'");
+                } else {
+                    database.deleteQuery(selectedTable, columnSearchName, columnSearch);
+                }
+                updateTable();
+                MyAlert.showInfoAlert("Запись успешно удалена");
             }
-            updateTable();
-            MyAlert.showInfoAlert("Запись успешно удалена");
         }
     }
 
@@ -182,13 +181,11 @@ public class UniversalTableTabController implements Initializable {
             Stage stage = new Stage();
             stage.setTitle(title);
             stage.setScene(new Scene(loader.load()));
-            stage.setUserData(this); // передаем UniversalTableTabController
+            stage.setUserData(this); // передаем UniversalTableController
 
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 }
-

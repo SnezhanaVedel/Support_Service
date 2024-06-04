@@ -3,6 +3,11 @@
     src: url('fonts/Roboto.ttf');
 }
 
+@font-face {
+    font-family: 'Roboto Bold';
+    src: url('fonts/Roboto-Bold.ttf');
+}
+
 .root {
     -fx-font-family: 'Roboto';
 }

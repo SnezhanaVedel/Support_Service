@@ -49,7 +49,6 @@ public class NewAdminRequestsController implements Initializable {
     public TextField finishDateTF;
     public Button refreshListBtn;
     public Button createOrCheckReportBtn;
-
     @FXML
     private TextField serialNumField;
     @FXML
@@ -72,10 +71,8 @@ public class NewAdminRequestsController implements Initializable {
     private TextField clientPhoneField;
     @FXML
     private TextField emailField;
-
     private Database database;
     private int currentRequestNumber = -1;
-
     private LinkedHashMap<Integer, Request> requestMap;
     private boolean filterApplied = false;
     private String query = null;
@@ -95,7 +92,6 @@ public class NewAdminRequestsController implements Initializable {
         database.listenForNotifications("request_updated");
 
         startNotificationListener();
-
         loadRepairRequests();
 
         stateChoice.getItems().addAll("В работе", "Выполнено", "В ожидании");

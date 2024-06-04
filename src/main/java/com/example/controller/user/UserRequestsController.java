@@ -44,7 +44,6 @@ public class UserRequestsController implements Initializable {
     public TextField registerDateTF;
     public Button refreshListBtn;
     public Button createOrCheckReportBtn;
-
     @FXML
     private TextField serialNumField;
     @FXML
@@ -61,15 +60,12 @@ public class UserRequestsController implements Initializable {
     private ChoiceBox<String> statusChoice;
     @FXML
     private TextField dateStartField;
-
     private Database database;
     private int currentRequestNumber = -1;
     private String role;
-
     private LinkedHashMap<Integer, Request> requestMap;
     private boolean filterApplied = false;
     private String query = null;
-
     private Thread notificationThread;
 
     public UserRequestsController(String role) {

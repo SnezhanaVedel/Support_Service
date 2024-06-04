@@ -29,97 +29,97 @@
                            <children>
                               <Label fx:id="requestNumberLabel" styleClass="roboto-text" text="Заявка №123456">
                                  <font>
-                                    <Font name="Arial Bold" size="18.0" />
+                                    <Font name="Roboto Bold" size="18.0" />
                                  </font>
                               </Label>
                               <Separator prefWidth="200.0" />
                               <Label text="Серийный номер">
                                  <font>
-                                    <Font name="Arial Bold" size="14.0" />
+                                    <Font name="Roboto Bold" size="14.0" />
                                  </font>
                               </Label>
                               <TextField fx:id="serialNumField" editable="false" maxWidth="300.0" />
                               <Separator prefWidth="200.0" />
                               <Label text="Название оборудования">
                                  <font>
-                                    <Font name="Arial Bold" size="14.0" />
+                                    <Font name="Roboto Bold" size="14.0" />
                                  </font>
                               </Label>
                               <TextField fx:id="equipNameField" maxWidth="300.0" />
                               <Separator prefWidth="200.0" />
                               <Label text="Тип оборудования">
                                  <font>
-                                    <Font name="Arial Bold" size="14.0" />
+                                    <Font name="Roboto Bold" size="14.0" />
                                  </font>
                               </Label>
                               <TextField fx:id="equipTypeField" maxWidth="300.0" />
                               <Separator prefWidth="200.0" />
                               <Label text="Состояние">
                                  <font>
-                                    <Font name="Arial Bold" size="14.0" />
+                                    <Font name="Roboto Bold" size="14.0" />
                                  </font>
                               </Label>
                               <ChoiceBox fx:id="conditionChoiceBox" prefWidth="150.0" />
                               <Separator prefWidth="200.0" />
                               <Label text="Детали">
                                  <font>
-                                    <Font name="Arial Bold" size="14.0" />
+                                    <Font name="Roboto Bold" size="14.0" />
                                  </font>
                               </Label>
                               <TextArea fx:id="detalsTextArea" maxWidth="300.0" prefHeight="100.0" />
                               <Separator prefWidth="200.0" />
                               <Label text="Местоположение">
                                  <font>
-                                    <Font name="Arial Bold" size="14.0" />
+                                    <Font name="Roboto Bold" size="14.0" />
                                  </font>
                               </Label>
                               <TextField fx:id="locationField" maxWidth="300.0" />
                               <Separator prefWidth="200.0" />
                               <Label text="Описание проблемы">
                                  <font>
-                                    <Font name="Arial Bold" size="14.0" />
+                                    <Font name="Roboto Bold" size="14.0" />
                                  </font>
                               </Label>
                               <TextArea fx:id="problemDescTextArea" maxWidth="300.0" prefHeight="100.0" wrapText="true" />
                               <Separator prefWidth="200.0" />
                               <Label text="Комментарии к заявке">
                                  <font>
-                                    <Font name="Arial Bold" size="14.0" />
+                                    <Font name="Roboto Bold" size="14.0" />
                                  </font>
                               </Label>
                               <TextArea fx:id="commentsTextArea" maxWidth="300.0" prefHeight="100.0" wrapText="true" />
                               <Separator prefWidth="200.0" />
                               <Label text="Статус">
                                  <font>
-                                    <Font name="Arial Bold" size="14.0" />
+                                    <Font name="Roboto Bold" size="14.0" />
                                  </font>
                               </Label>
                               <ChoiceBox fx:id="stateChoice" prefWidth="150.0" />
                               <Separator prefWidth="200.0" />
                               <Label text="Дата начала">
                                  <font>
-                                    <Font name="Arial Bold" size="14.0" />
+                                    <Font name="Roboto Bold" size="14.0" />
                                  </font>
                               </Label>
                               <TextField fx:id="dateStartField" editable="false" maxWidth="300.0" />
                               <Separator prefWidth="200.0" />
                               <Label text="Имя клиента">
                                  <font>
-                                    <Font name="Arial Bold" size="14.0" />
+                                    <Font name="Roboto Bold" size="14.0" />
                                  </font>
                               </Label>
                               <TextField fx:id="clientNameField" editable="false" maxWidth="300.0" />
                               <Separator prefWidth="200.0" />
                               <Label text="Телефон клиента">
                                  <font>
-                                    <Font name="Arial Bold" size="14.0" />
+                                    <Font name="Roboto Bold" size="14.0" />
                                  </font>
                               </Label>
                               <TextField fx:id="clientPhoneField" editable="false" maxWidth="300.0" />
                               <Separator prefWidth="200.0" />
                               <Label text="Email клиента">
                                  <font>
-                                    <Font name="Arial Bold" size="14.0" />
+                                    <Font name="Roboto Bold" size="14.0" />
                                  </font>
                               </Label>
                               <TextField fx:id="emailField" editable="false" maxWidth="300.0" />

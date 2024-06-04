@@ -1,6 +1,6 @@
 package com.example.controller.dialogs;
 
-import com.example.controller.admin.UniversalTableTabController;
+import com.example.controller.admin.UniversalTableController;
 import com.example.util.Database;
 import com.example.util.MyAlert;
 import javafx.collections.ObservableList;
@@ -18,7 +18,6 @@ import java.util.ResourceBundle;
 public class DialogAddOrdersController implements Initializable {
     public VBox valuesVbox;
     public Button idBottomAdd;
-
     public TextField requestIdTF;
     public TextField resourceTypeTF;
     public TextField resourceNameTF;
@@ -54,8 +53,8 @@ public class DialogAddOrdersController implements Initializable {
         Stage stage = (Stage) idBottomAdd.getScene().getWindow();
         stage.close();
 
-        // Обновляем таблицу в UniversalTableTabController
-        UniversalTableTabController parentController = (UniversalTableTabController) stage.getUserData();
+        // Обновляем таблицу в UniversalTableController
+        UniversalTableController parentController = (UniversalTableController) stage.getUserData();
         parentController.updateTable();
     }
 

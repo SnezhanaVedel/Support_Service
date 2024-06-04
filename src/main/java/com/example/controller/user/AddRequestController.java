@@ -18,7 +18,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
-public class AddRequestTabController implements Initializable {
+public class AddRequestController implements Initializable {
     public TextField serialNumberField;
     public TextField equipmentTypeTF;
     public TextField equipmentNameTF;
@@ -70,7 +70,6 @@ public class AddRequestTabController implements Initializable {
             MyAlert.showErrorAlert("Ошибка при получении данных об оборудовании.");
         }
     }
-
 
     private void clearEquipmentDetails() {
         equipmentNameTF.clear();

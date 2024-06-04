@@ -4,27 +4,23 @@ import java.sql.*;
 
 public class Request {
     int id;
-
     String serial_num;
     String equip_name;
     String equip_type;
     String condition;
     String detals;
     String location;
-
     String problem_desc;
     String request_comments;
     String status;
     String date_start;
     int member_id;
-
     String client_name;
     String client_phone;
     String email;
     String login;
     String pass;
     String role;
-
     Database database;
 
 
@@ -35,7 +31,6 @@ public class Request {
     }
 
     public void updateRequestInDB(
-//            String equip_num,
                                   String equip_type,
                                   String problem_desc,
                                   String request_comments,
@@ -50,13 +45,11 @@ public class Request {
         this.problem_desc = problem_desc;
         this.request_comments = request_comments;
         this.status = status;
-
         this.equip_type = equip_type;
         this.equip_name = equip_name;
         this.condition = condition;
         this.detals = detals;
         this.location = location;
-
 
         database = Database.getInstance();
 
@@ -118,18 +111,6 @@ public class Request {
             MyAlert.showErrorAlert("Ошибка при получении информации о заявке.");
         }
     }
-
-//    public boolean deleteRequestInDB() {
-//        String idStr = String.valueOf(id);
-//        database.deleteQuery("assignments", "id_request", idStr);
-//        database.deleteQuery("request_processes", "request_id", idStr);
-//        database.deleteQuery("request_regs", "request_id", idStr);
-//        boolean deletedSuccessfully = database.deleteQuery("requests", "id", idStr);
-//
-//        // TODO: мб проверку условий доделать
-//        return deletedSuccessfully;
-//    }
-
 
     public int getId() {
         return id;
@@ -206,5 +187,4 @@ public class Request {
     public String getRequest_comments() {
         return request_comments;
     }
-
 }

@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane fx:id="root" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.user.AddRequestTabController">
+<BorderPane fx:id="root" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.user.AddRequestController">
     <bottom>
         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0" BorderPane.alignment="CENTER">
             <children>
@@ -40,30 +40,30 @@
                           <children>
                               <Label text="Серийный номер">
                            <font>
-                              <Font name="Arial" size="16.0" />
+                              <Font name="Roboto" size="16.0" />
                            </font></Label>
                               <TextField fx:id="serialNumberField" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1">
                            <font>
-                              <Font name="Arial" size="14.0" />
+                              <Font name="Roboto" size="14.0" />
                            </font></TextField>
                         <Label layoutX="237.0" layoutY="15.0" text="Тип оборудования" GridPane.rowIndex="1">
                            <font>
-                              <Font name="Arial" size="16.0" />
+                              <Font name="Roboto" size="16.0" />
                            </font>
                         </Label>
                         <Label layoutX="237.0" layoutY="65.0" text="Наименования обороудования" GridPane.rowIndex="2">
                            <font>
-                              <Font name="Arial" size="16.0" />
+                              <Font name="Roboto" size="16.0" />
                            </font>
                         </Label>
                         <TextField fx:id="equipmentTypeTF" layoutX="385.0" layoutY="10.0" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                            <font>
-                              <Font name="Arial" size="14.0" />
+                              <Font name="Roboto" size="14.0" />
                            </font>
                         </TextField>
                         <TextField fx:id="equipmentNameTF" layoutX="385.0" layoutY="10.0" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                            <font>
-                              <Font name="Arial" size="14.0" />
+                              <Font name="Roboto" size="14.0" />
                            </font>
                         </TextField>
                           </children>
@@ -82,12 +82,12 @@
                                       <Insets />
                                   </GridPane.margin>
                            <font>
-                              <Font name="Arial" size="16.0" />
+                              <Font name="Roboto" size="16.0" />
                            </font>
                         </Label>
                         <TextArea fx:id="descTextArea" prefHeight="150.0" prefWidth="250.0" wrapText="true" GridPane.columnIndex="1">
                            <font>
-                              <Font name="Arial" size="14.0" />
+                              <Font name="Roboto" size="14.0" />
                            </font></TextArea>
                           </children>
                       </GridPane>

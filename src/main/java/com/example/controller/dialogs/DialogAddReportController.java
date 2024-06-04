@@ -1,14 +1,14 @@
 package com.example.controller.dialogs;
 
-import com.example.controller.admin.UniversalTableController;
+import com.example.controller.admin.AdminRequestsController;
 import com.example.util.Database;
 import com.example.util.MyAlert;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -16,17 +16,14 @@ import javafx.stage.Stage;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class DialogAddEquipmentController implements Initializable {
+public class DialogAddReportController implements Initializable {
     public VBox valuesVbox;
     public Button idBottomAdd;
-    public TextField serialNumTF;
-    public TextField equipNameTF;
-    public TextField equipTypeTF;
-    public ChoiceBox<String> conditionCB;
-    public TextField detailsTF;
-    public TextField locationTF;
+    public TextField requestIdTF;
+    private AdminRequestsController parentController;
+    private Stage stage;
 
-    public DialogAddEquipmentController() {
+    public DialogAddReportController() {
     }
 
     public void onCancelBtn(ActionEvent actionEvent) {
@@ -35,14 +32,11 @@ public class DialogAddEquipmentController implements Initializable {
 
     public void onActionBottomAdd(ActionEvent actionEvent) {
         ObservableList<Node> list = valuesVbox.getChildren();
-        String sqlAdd = "INSERT INTO equipment (serial_num, equip_name, equip_type, condition, detals, location) VALUES (";
+        String sqlAdd = "INSERT INTO reports (request_id, resource_type, time, cost, resources, reason, help) VALUES (";
 
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i) instanceof TextField) {
                 sqlAdd += "'" + ((TextField) list.get(i)).getText() + "'";
-                sqlAdd += (i + 1 != list.size()) ? "," : "";
-            } else if (list.get(i) instanceof ChoiceBox) {
-                sqlAdd += "'" + ((ChoiceBox) list.get(i)).getValue() + "'";
                 sqlAdd += (i + 1 != list.size()) ? "," : "";
             }
         }
@@ -54,18 +48,16 @@ public class DialogAddEquipmentController implements Initializable {
         } else {
             MyAlert.showErrorAlert("Произошла ошибка при добавлении записи");
         }
-
-        // Получаем текущее окно и закрываем его
-        Stage stage = (Stage) idBottomAdd.getScene().getWindow();
         stage.close();
-
-        // Обновляем таблицу в UniversalTableController
-        UniversalTableController parentController = (UniversalTableController) stage.getUserData();
-        parentController.updateTable();
+        parentController.showMoreInfo(parentController.getCurrentRequestNumber());
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        conditionCB.getItems().addAll("Исправно", "Не исправно", "Требуются запчасти");
+        Platform.runLater(() -> {
+            stage = (Stage) idBottomAdd.getScene().getWindow();
+            parentController = (AdminRequestsController) stage.getUserData();
+            requestIdTF.setText(String.valueOf(parentController.getCurrentRequestNumber()));
+        });
     }
 }

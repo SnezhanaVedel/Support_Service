@@ -32,7 +32,6 @@ public class LoginController implements Initializable {
         database = Database.getInstance();
     }
 
-
     @FXML
     private void btnLoginAction() {
         String login = txtUsername.getText();
@@ -50,8 +49,6 @@ public class LoginController implements Initializable {
             MyAlert.showErrorAlert("Неверный логин или пароль");
         }
     }
-
-
 
     private void logIn() {
         try {

@@ -13,7 +13,7 @@ CREATE TABLE members (
 id SERIAL PRIMARY KEY,
 name VARCHAR(100),
 phone VARCHAR(20),
-e_mail VARCHAR(100),
+email VARCHAR(100),
 login VARCHAR(50),
 pass VARCHAR(50),
 role VARCHAR(50)
