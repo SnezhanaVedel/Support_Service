@@ -308,7 +308,7 @@ public class AdminRequestsController implements Initializable {
             if (reportValues != null && reportValues.size() > 0) {
                 String report =
                         "Номер заявки: " + reportValues.get(0) + "\n\n" +
-                                "Тип ремонта: " + reportValues.get(1) + "\n\n" +
+                                "Тип неисправности: " + reportValues.get(1) + "\n\n" +
                                 "Время выполнения, дней: " + reportValues.get(2) + "\n\n" +
                                 "Стоимость: " + reportValues.get(3) + "\n\n" +
                                 "Ресурсы: " + reportValues.get(4) + "\n\n" +

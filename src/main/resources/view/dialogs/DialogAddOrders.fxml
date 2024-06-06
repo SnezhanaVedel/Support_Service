@@ -24,8 +24,8 @@
                 <VBox alignment="CENTER_RIGHT" prefHeight="293.0" prefWidth="203.0" spacing="18.0" BorderPane.alignment="CENTER">
                     <children>
                         <Label text="ID заявки" />
-                        <Label text="Тип ресурса" />
-                        <Label text="Наименование ресурса" />
+                        <Label text="Тип запчасти" />
+                        <Label text="Наименование запчасти" />
                         <Label text="Стоимость" />
                     </children>
                     <padding>

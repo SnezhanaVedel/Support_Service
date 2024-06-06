@@ -83,7 +83,7 @@ public class Main extends Application {
             if (e.getMessage().contains("Connection timed out")) {
                 JOptionPane.showMessageDialog(null, "Время подключения истекло. Проверьте правильность IP адреса и доступность базы данных.", "Ошибка", JOptionPane.ERROR_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(null, "Ошибка подключения к базе данных: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Произошла ошибка при подключении к базе данных.", "Ошибка", JOptionPane.ERROR_MESSAGE);
             }
             e.printStackTrace();
             return false;
