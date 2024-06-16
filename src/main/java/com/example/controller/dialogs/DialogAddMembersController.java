@@ -58,7 +58,7 @@ public class DialogAddMembersController implements Initializable {
 
         if (isEditMode) {
             // Обновление записи
-            sqlQuery = "UPDATE members SET " +
+            sqlQuery = "UPDATE test_members SET " +
                     "name = '" + nameTF.getText() + "', " +
                     "phone = '" + phoneTF.getText() + "', " +
                     "email = '" + emailTF.getText() + "', " +
@@ -68,16 +68,22 @@ public class DialogAddMembersController implements Initializable {
                     "WHERE id = '" + rowData.get(0) + "'";
         } else {
             // Добавление новой записи
-            sqlQuery = "INSERT INTO members (name, phone, email, login, pass, role) VALUES (";
+            sqlQuery = "INSERT INTO test_members (name, phone, email, login, pass, role) VALUES (";
 
-            for (int i = 0; i < list.size(); i++) {
-                if (list.get(i) instanceof TextField) {
-                    sqlQuery += "'" + ((TextField) list.get(i)).getText() + "'";
-                    sqlQuery += (i + 1 != list.size()) ? "," : "";
-
-                } else if (list.get(i) instanceof ChoiceBox) {
-                    sqlQuery += "'" + ((ChoiceBox) list.get(i)).getValue() + "'";
-                    sqlQuery += (i + 1 != list.size()) ? "," : "";
+            boolean first = true;
+            for (Node node : list) {
+                if (node instanceof TextField) {
+                    if (!first) {
+                        sqlQuery += ", ";
+                    }
+                    sqlQuery += "'" + ((TextField) node).getText() + "'";
+                    first = false;
+                } else if (node instanceof ChoiceBox) {
+                    if (!first) {
+                        sqlQuery += ", ";
+                    }
+                    sqlQuery += "'" + ((ChoiceBox) node).getValue() + "'";
+                    first = false;
                 }
             }
             sqlQuery += ");";
@@ -102,8 +108,9 @@ public class DialogAddMembersController implements Initializable {
             UniversalTableController parentController1 = (UniversalTableController) stage.getUserData();
             parentController1.updateTable();
         }
-
     }
+
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
