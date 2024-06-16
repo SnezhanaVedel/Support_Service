@@ -25,7 +25,7 @@ public class AddRequestController implements Initializable {
     public TextArea descTextArea;
     public Button createRequestBtn;
     public Button clearFieldsBtn;
-    private Database database;
+    Database database;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -88,11 +88,27 @@ public class AddRequestController implements Initializable {
 
     @FXML
     public void onActionAdd() {
-        String insertRequestsSql = String.format(
-                "INSERT INTO requests (serial_num, problem_desc, request_comments, status, date_start, member_id) VALUES ('%s', '%s', '%s', '%s', '%s', %d)",
-                serialNumberField.getText(), descTextArea.getText(), " ", "Новая", Date.valueOf(LocalDate.now()), MainViewController.userID);
-        database.simpleQuery(insertRequestsSql);
+        addRequestWithParams(serialNumberField.getText(), descTextArea.getText());
+    }
 
-        MyAlert.showInfoAlert("Запись добавлена успешно.");
+    // Новый метод, который принимает параметры
+    public void addRequestWithParams(String serialNumber, String problemDesc) {
+        String insertRequestsSql = "INSERT INTO requests (serial_num, problem_desc, request_comments, status, date_start, member_id) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection connection = database.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(insertRequestsSql)) {
+
+            preparedStatement.setString(1, serialNumber);
+            preparedStatement.setString(2, problemDesc);
+            preparedStatement.setString(3, " ");
+            preparedStatement.setString(4, "Новая");
+            preparedStatement.setDate(5, Date.valueOf(LocalDate.now()));
+            preparedStatement.setInt(6, MainViewController.userID);
+            preparedStatement.executeUpdate();
+
+            MyAlert.showInfoAlert("Запись добавлена успешно.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            MyAlert.showErrorAlert("Ошибка при добавлении записи.");
+        }
     }
 }

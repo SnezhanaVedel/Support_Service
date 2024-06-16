@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class DialogAddMembersController implements Initializable {
@@ -26,7 +27,25 @@ public class DialogAddMembersController implements Initializable {
     public TextField loginTF;
     public TextField passTF;
 
+    private UniversalTableController parentController;
+    private List<String> rowData;
+    private boolean isEditMode = false;
+
     public DialogAddMembersController() {
+    }
+
+    public void initData(UniversalTableController parentController, List<String> rowData) {
+        this.parentController = parentController;
+        this.rowData = rowData;
+        this.isEditMode = true;
+
+        // Заполнение полей данными для редактирования
+        nameTF.setText(rowData.get(1));
+        phoneTF.setText(rowData.get(2));
+        emailTF.setText(rowData.get(3));
+        loginTF.setText(rowData.get(4));
+        passTF.setText(rowData.get(5));
+        roleChoice.setValue(rowData.get(6));
     }
 
     public void onCancelBtn(ActionEvent actionEvent) {
@@ -35,34 +54,55 @@ public class DialogAddMembersController implements Initializable {
 
     public void onActionBottomAdd(ActionEvent actionEvent) {
         ObservableList<Node> list = valuesVbox.getChildren();
-        String sqlAdd = "INSERT INTO members (name, phone, email, login, pass, role) VALUES (";
+        String sqlQuery;
 
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i) instanceof TextField) {
-                sqlAdd += "'" + ((TextField) list.get(i)).getText() + "'";
-                sqlAdd += (i + 1 != list.size()) ? "," : "";
-
-            } else if (list.get(i) instanceof ChoiceBox) {
-                sqlAdd += "'" + ((ChoiceBox) list.get(i)).getValue() + "'";
-                sqlAdd += (i + 1 != list.size()) ? "," : "";
-            }
-        }
-        sqlAdd += ");";
-
-        boolean success = Database.getInstance().simpleQuery(sqlAdd);
-        if (success) {
-            MyAlert.showInfoAlert("Запись добавлена успешно");
+        if (isEditMode) {
+            // Обновление записи
+            sqlQuery = "UPDATE members SET " +
+                    "name = '" + nameTF.getText() + "', " +
+                    "phone = '" + phoneTF.getText() + "', " +
+                    "email = '" + emailTF.getText() + "', " +
+                    "login = '" + loginTF.getText() + "', " +
+                    "pass = '" + passTF.getText() + "', " +
+                    "role = '" + roleChoice.getValue() + "' " +
+                    "WHERE id = '" + rowData.get(0) + "'";
         } else {
-            MyAlert.showErrorAlert("Произошла ошибка при добавлении записи");
+            // Добавление новой записи
+            sqlQuery = "INSERT INTO members (name, phone, email, login, pass, role) VALUES (";
+
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i) instanceof TextField) {
+                    sqlQuery += "'" + ((TextField) list.get(i)).getText() + "'";
+                    sqlQuery += (i + 1 != list.size()) ? "," : "";
+
+                } else if (list.get(i) instanceof ChoiceBox) {
+                    sqlQuery += "'" + ((ChoiceBox) list.get(i)).getValue() + "'";
+                    sqlQuery += (i + 1 != list.size()) ? "," : "";
+                }
+            }
+            sqlQuery += ");";
         }
 
-        // Получаем текущее окно и закрываем его
+        boolean success = Database.getInstance().simpleQuery(sqlQuery);
+        if (success) {
+            MyAlert.showInfoAlert("Запись " + (isEditMode ? "обновлена" : "добавлена") + " успешно");
+        } else {
+            MyAlert.showErrorAlert("Произошла ошибка при " + (isEditMode ? "обновлении" : "добавлении") + " записи");
+        }
+
+        // Закрываем текущее окно
         Stage stage = (Stage) idBottomAdd.getScene().getWindow();
         stage.close();
 
-        // Обновляем таблицу в UsersTabController
-        UniversalTableController parentController = (UniversalTableController) stage.getUserData();
-        parentController.updateTable();
+        // Обновляем таблицу в UniversalTableController
+        if (parentController != null) {
+            parentController.updateTable();
+        } else {
+            // Обновляем таблицу в UniversalTableController
+            UniversalTableController parentController1 = (UniversalTableController) stage.getUserData();
+            parentController1.updateTable();
+        }
+
     }
 
     @Override

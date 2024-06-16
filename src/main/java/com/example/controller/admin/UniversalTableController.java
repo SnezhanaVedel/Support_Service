@@ -1,5 +1,8 @@
 package com.example.controller.admin;
 
+import com.example.controller.dialogs.DialogAddEquipmentController;
+import com.example.controller.dialogs.DialogAddMembersController;
+import com.example.controller.dialogs.DialogAddOrdersController;
 import com.example.util.Database;
 import com.example.util.MyAlert;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -11,6 +14,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Stage;
@@ -55,7 +59,58 @@ public class UniversalTableController implements Initializable {
                 addNewBtn.setText("Добавить заказ");
             }
         }
+
+        tableView.setRowFactory(tv -> {
+            TableRow<List<String>> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (!row.isEmpty())) {
+                    List<String> rowData = row.getItem();
+                    openEditDialog(rowData);
+                }
+            });
+            return row;
+        });
     }
+
+    private void openEditDialog(List<String> rowData) {
+        String path = "";
+        String title = "";
+
+        if (selectedTable.equals("equipment")) {
+            path = "/view/dialogs/DialogAddEquipment.fxml";
+            title = "Редактирование оборудования";
+        } else if (selectedTable.equals("members")) {
+            path = "/view/dialogs/AddMembersDialog.fxml";
+            title = "Редактирование пользователя";
+        } else if (selectedTable.equals("orders")) {
+            path = "/view/dialogs/DialogAddOrders.fxml";
+            title = "Редактирование заказа";
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
+            Stage stage = new Stage();
+            stage.setTitle(title);
+            stage.setScene(new Scene(loader.load()));
+
+            // Передача текущего контроллера и данных строки в контроллер диалога
+            if (selectedTable.equals("equipment")) {
+                DialogAddEquipmentController controller = loader.getController();
+                controller.initData(this, rowData);
+            } else if (selectedTable.equals("members")) {
+                DialogAddMembersController controller = loader.getController();
+                controller.initData(this, rowData);
+            } else if (selectedTable.equals("orders")) {
+                DialogAddOrdersController controller = loader.getController();
+                controller.initData(this, rowData);
+            }
+
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private void cleaningTable() {
         tableView.getColumns().clear();
