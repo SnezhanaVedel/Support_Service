@@ -81,3 +81,31 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trigger_request_updated
 AFTER UPDATE ON requests
 FOR EACH ROW EXECUTE FUNCTION notify_request_updated();
+
+-- Создание функции для уведомления о создании отчета
+CREATE OR REPLACE FUNCTION notify_report_created()
+RETURNS trigger AS $$
+BEGIN
+PERFORM pg_notify('report_created', NEW.request_id::text);
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Создание триггера для уведомления о создании отчета
+CREATE TRIGGER trigger_report_created
+AFTER INSERT ON reports
+FOR EACH ROW EXECUTE FUNCTION notify_report_created();
+
+-- Создание функции для уведомления об обновлении отчета
+CREATE OR REPLACE FUNCTION notify_report_updated()
+RETURNS trigger AS $$
+BEGIN
+PERFORM pg_notify('report_updated', NEW.request_id::text);
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Создание триггера для уведомления об обновлении отчета
+CREATE TRIGGER trigger_report_updated
+AFTER UPDATE ON reports
+FOR EACH ROW EXECUTE FUNCTION notify_report_updated();
